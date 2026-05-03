@@ -95,7 +95,7 @@ st.markdown(f"""
     </style>
 
     <div class="header-container">
-        <div class="header-left">EL LOCO MUNOZ AI</div>
+        <div class="header-left">EL LOCO MUÑOZ AI</div>
         <div class="header-center">{st.session_state.current_title}</div>
         <div class="header-right">
             <img src="{URL_LOGO_SAVOIA}" height="45">
@@ -149,7 +149,7 @@ if prompt := st.chat_input("Chiedi al Loco..."):
 
     with st.chat_message("assistant"):
         try:
-            instruction = "Sei EL LOCO MUNOZ AI, l'anima ruggente del Savoia 1908. Rispondi con fierezza."
+            instruction = "Sei El loco Muñoz, l'anima ruggente del Savoia 1908. Rispondi con fierezza."
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=[{"role": "system", "content": instruction}] + st.session_state.messages,
