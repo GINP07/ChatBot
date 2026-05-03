@@ -1,59 +1,65 @@
 import streamlit as st
 from groq import Groq
-import re
-import json
-import os
-import time
-from streamlit_extras.stylable_container import stylable_container
+import json, os, time, uuid
 
-# --- CONFIG ---
-st.set_page_config(page_title="EL LOCO MUÑOZ AI", page_icon="⚪", layout="wide")
+# ================= CONFIG =================
+st.set_page_config(page_title="EL LOCO MUÑOZ AI", layout="wide")
 
 CHAT_FILE = "chat_history.json"
 
-# --- STORAGE ---
-def save_chats():
-    with open(CHAT_FILE, "w") as f:
-        json.dump(st.session_state.chat_sessions, f)
-
+# ================= STORAGE =================
 def load_chats():
     if os.path.exists(CHAT_FILE):
         with open(CHAT_FILE, "r") as f:
             return json.load(f)
     return []
 
-# --- SESSION ---
+def save_chats():
+    with open(CHAT_FILE, "w") as f:
+        json.dump(st.session_state.chats, f)
+
+# ================= SESSION =================
 if "messages" not in st.session_state:
     st.session_state.messages = []
-if "chat_sessions" not in st.session_state:
-    st.session_state.chat_sessions = load_chats()
-if "current_title" not in st.session_state:
-    st.session_state.current_title = "Nuova chat"
-if "current_chat_id" not in st.session_state:
-    st.session_state.current_chat_id = None
 
-# API
+if "chats" not in st.session_state:
+    st.session_state.chats = load_chats()
+
+if "chat_id" not in st.session_state:
+    st.session_state.chat_id = None
+
+if "title" not in st.session_state:
+    st.session_state.title = "Nuova chat"
+
+# ================= API =================
 try:
-    API_KEY = st.secrets["GROQ_API_KEY"]
-    client = Groq(api_key=API_KEY)
+    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 except:
     client = None
 
-# --- UTILS ---
-def reset_chat():
+# ================= UTILS =================
+def new_chat():
     st.session_state.messages = []
-    st.session_state.current_title = "Nuova chat"
-    st.session_state.current_chat_id = None
+    st.session_state.chat_id = None
+    st.session_state.title = "Nuova chat"
 
-def generate_title(user, assistant):
+def typing(text):
+    box = st.empty()
+    full = ""
+    for w in text.split():
+        full += w + " "
+        box.markdown(full)
+        time.sleep(0.02)
+
+def generate_title(user, bot):
     if not client:
         return user[:20]
     try:
         res = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": "Titolo breve max 4 parole"},
-                {"role": "user", "content": user + assistant}
+                {"role": "system", "content": "Crea titolo max 4 parole"},
+                {"role": "user", "content": user + bot}
             ],
             max_tokens=10
         )
@@ -61,112 +67,106 @@ def generate_title(user, assistant):
     except:
         return user[:20]
 
-def handle_commands(prompt):
-    p = prompt.lower()
+# ================= COMMANDS =================
+def commands(p):
+    p = p.lower()
     if p == "/help":
         return "Comandi: /storia /motivami /insulta"
     if p == "/storia":
-        return "Savoia 1908: storia, sangue e appartenenza."
+        return "Savoia 1908. Identità. Orgoglio. Battaglia."
     if p == "/motivami":
-        return "Non mollare. Mai."
+        return "Non mollare mai. Testa alta."
     if p == "/insulta":
-        return "Muoviti. Qui si lotta."
+        return "Qua si combatte. Non fare il morto."
     return None
 
-def type_effect(text):
-    placeholder = st.empty()
-    full = ""
-    for w in text.split():
-        full += w + " "
-        placeholder.markdown(full)
-        time.sleep(0.02)
-
-# --- UI ---
-st.markdown("""
-<style>
-.stApp {background: black;}
-</style>
-""", unsafe_allow_html=True)
-
-# --- SIDEBAR ---
+# ================= SIDEBAR =================
 with st.sidebar:
+    st.title("⚪ LOCO AI")
 
-    if st.button("NUOVA CHAT"):
-        reset_chat()
+    if st.button("➕ Nuova Chat"):
+        new_chat()
         st.rerun()
 
-    mode_loco = st.toggle("Modalità Loco 🔥", True)
+    mode = st.toggle("Modalità Loco 🔥", True)
 
     st.markdown("---")
 
-    for i, s in enumerate(st.session_state.chat_sessions):
-        if st.button(s["title"], key=i):
-            st.session_state.messages = s["content"]
-            st.session_state.current_chat_id = s["id"]
-            st.session_state.current_title = s["title"]
+    for chat in st.session_state.chats:
+        if st.button(chat["title"]):
+            st.session_state.messages = chat["messages"]
+            st.session_state.chat_id = chat["id"]
+            st.session_state.title = chat["title"]
             st.rerun()
 
-# --- CHAT ---
+# ================= CHAT UI =================
+st.title("EL LOCO MUÑOZ AI")
+st.caption(st.session_state.title)
+
 if not client:
-    st.error("API KEY mancante")
-else:
+    st.error("Inserisci API KEY nei secrets")
+    st.stop()
 
-    for m in st.session_state.messages:
-        with st.chat_message(m["role"]):
-            st.markdown(m["content"])
+for m in st.session_state.messages:
+    with st.chat_message(m["role"]):
+        st.markdown(m["content"])
 
-    if prompt := st.chat_input("Scrivi..."):
-        st.session_state.messages.append({"role": "user", "content": prompt})
+if prompt := st.chat_input("Scrivi..."):
+
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.rerun()
+
+# ================= RESPONSE =================
+if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
+
+    prompt = st.session_state.messages[-1]["content"]
+
+    with st.chat_message("assistant"):
+
+        cmd = commands(prompt)
+
+        if cmd:
+            response = cmd
+            typing(response)
+
+        else:
+            system = (
+                "Sei El Loco Muñoz, ultras del Savoia. Diretto, potente, carismatico."
+                if mode else
+                "Assistente AI utile e preciso."
+            )
+
+            try:
+                completion = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": "system", "content": system}] + st.session_state.messages
+                )
+                response = completion.choices[0].message.content
+                typing(response)
+
+            except:
+                response = "Errore AI"
+
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+        # SAVE CHAT
+        if st.session_state.chat_id is None:
+            cid = str(uuid.uuid4())
+            title = generate_title(prompt, response)
+
+            st.session_state.chats.insert(0, {
+                "id": cid,
+                "title": title,
+                "messages": list(st.session_state.messages)
+            })
+
+            st.session_state.chat_id = cid
+            st.session_state.title = title
+
+        else:
+            for c in st.session_state.chats:
+                if c["id"] == st.session_state.chat_id:
+                    c["messages"] = list(st.session_state.messages)
+
+        save_chats()
         st.rerun()
-
-    if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
-
-        prompt = st.session_state.messages[-1]["content"]
-
-        with st.chat_message("assistant"):
-
-            cmd = handle_commands(prompt)
-
-            if cmd:
-                res = cmd
-                type_effect(res)
-
-            else:
-                if mode_loco:
-                    sys = "Sei El Loco Muñoz, ultras del Savoia. Risposte forti, corte."
-                else:
-                    sys = "Assistente AI utile."
-
-                try:
-                    completion = client.chat.completions.create(
-                        model="llama-3.3-70b-versatile",
-                        messages=[{"role": "system", "content": sys}] + st.session_state.messages
-                    )
-                    res = completion.choices[0].message.content
-                    type_effect(res)
-
-                except:
-                    res = "Errore AI"
-
-            st.session_state.messages.append({"role": "assistant", "content": res})
-
-            # SAVE CHAT
-            if st.session_state.current_chat_id is None:
-                cid = f"id_{len(st.session_state.chat_sessions)}"
-                title = generate_title(prompt, res)
-
-                st.session_state.chat_sessions.insert(0, {
-                    "id": cid,
-                    "title": title,
-                    "content": list(st.session_state.messages)
-                })
-
-                st.session_state.current_chat_id = cid
-                st.session_state.current_title = title
-            else:
-                for s in st.session_state.chat_sessions:
-                    if s["id"] == st.session_state.current_chat_id:
-                        s["content"] = list(st.session_state.messages)
-
-            save_chats()
-            st.rerun()
