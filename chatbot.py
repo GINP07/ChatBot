@@ -1,10 +1,12 @@
 import streamlit as st
 from groq import Groq
 import re
+import streamlit_antd_components as sac
+from streamlit_extras.stylable_container import stylable_container
 
 # --- 1. CONFIGURAZIONE PAGINA ---
 st.set_page_config(
-    page_title="EL LOCO MUNOZ AI", 
+    page_title="EL LOCO MUÑOZ AI", 
     page_icon="⚪", 
     layout="wide",
     initial_sidebar_state="expanded"
@@ -33,21 +35,12 @@ if "api_key" not in st.session_state:
 def generate_ai_summary(user_prompt, assistant_response):
     if st.session_state.api_key:
         client_summary = Groq(api_key=st.session_state.api_key)
-        sys_prompt = "Genera un titolo sintetico, massimo 5 parole, per questa chat. No emoji."
-        messages = [
-            {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": f"D: {user_prompt}\nR: {assistant_response}"}
-        ]
+        sys_prompt = "Genera un titolo sintetico, massimo 5 parole. No emoji."
+        messages = [{"role": "system", "content": sys_prompt}, {"role": "user", "content": f"D: {user_prompt}"}]
         try:
-            completion = client_summary.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=messages,
-                temperature=0.5,
-                max_tokens=15
-            )
+            completion = client_summary.chat.completions.create(model="llama-3.3-70b-versatile", messages=messages, temperature=0.5, max_tokens=15)
             return re.sub(r'[".]$', '', completion.choices[0].message.content.strip())
-        except:
-            return f"{user_prompt[:20]}..."
+        except: return f"{user_prompt[:20]}..."
     return "Nuova chat"
 
 def reset_to_welcome():
@@ -55,158 +48,147 @@ def reset_to_welcome():
     st.session_state.current_title = "Nuova chat"
     st.session_state.current_chat_id = None
 
-# --- 4. CSS (RIMOSSA FRECCIA E PULIZIA MENU) ---
+# --- 4. CSS CUSTOM (NERO/BIANCO E PULIZIA) ---
 st.markdown(f"""
     <style>
+    /* Sfondo generale */
     .stApp {{
-        background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url("{URL_SFONDO}");
+        background-image: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), url("{URL_SFONDO}");
         background-size: cover;
         background-attachment: fixed;
     }}
 
+    /* Header superiore */
     .header-container {{
         position: fixed; top: 0; left: 0; width: 100%; height: 70px;
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(255, 255, 255, 0.98);
         display: flex; align-items: center; justify-content: center;
-        z-index: 999; border-bottom: 1px solid #ddd;
+        z-index: 999; border-bottom: 2px solid #000;
     }}
-    .header-right-logo {{ position: absolute; right: 40px; height: 40px; }}
-    .header-titles-group {{ display: flex; flex-direction: column; align-items: center; }}
-    .header-center-title {{ color: #000 !important; font-weight: 800; font-size: 19px; text-transform: uppercase; margin: 0; }}
-    .header-subtitle {{ color: #666 !important; font-weight: 500; font-style: italic; font-size: 13px; margin: 0; }}
+    .header-center-title {{ color: #000 !important; font-weight: 900; font-size: 22px; text-transform: uppercase; margin: 0; letter-spacing: 1px; }}
 
-    .main .block-container {{
-        max-width: 850px !important;
-        padding-top: 100px !important;
-    }}
-
-    /* 3D CARD */
-    .welcome-container {{
-        display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh;
-    }}
-    .image-3d-card {{
-        width: 320px; height: 180px; border-radius: 20px;
-        background-image: url('{URL_IMMAGINE_BENVENUTO}');
-        background-size: cover; background-position: center;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        transition: transform 0.4s ease;
-        transform-style: preserve-3d;
-        border: 2px solid rgba(255,255,255,0.15);
-        margin-bottom: 25px;
-    }}
-    .image-3d-card:hover {{
-        transform: perspective(1000px) rotateX(8deg) rotateY(-8deg) scale(1.05);
-    }}
-
-    /* SIDEBAR DESIGN */
-    [data-testid="stSidebar"] {{ background-color: #f4f4f4 !important; }}
-    [data-testid="stSidebar"] * {{ color: #222 !important; }}
+    /* Sidebar */
+    [data-testid="stSidebar"] {{ background-color: #ffffff !important; border-right: 1px solid #ddd; }}
     
-    /* ICONA INGRANAGGIO E RIMOZIONE FRECCIA */
+    /* Popover (Freccetta) - Pulizia Totale */
     [data-testid="stSidebar"] .stPopover > button {{
-        background-color: transparent !important;
         border: none !important;
-        padding: 0px !important;
-        display: flex; align-items: center; justify-content: center;
+        background: transparent !important;
+        color: #999 !important;
+        padding: 0 !important;
+        font-size: 14px !important;
     }}
     [data-testid="stSidebar"] .stPopover > button div > span:last-child {{ display: none !important; }}
 
-    /* CHAT BUBBLES */
-    .stChatMessage {{
-        background: rgba(255, 255, 255, 0.1) !important;
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        border-radius: 20px !important;
-        padding: 15px 20px !important;
+    /* 3D Card Benvenuto */
+    .welcome-container {{ display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; text-align: center; }}
+    .image-3d-card {{
+        width: 380px; height: 210px; border-radius: 12px;
+        background-image: url('{URL_IMMAGINE_BENVENUTO}');
+        background-size: cover; box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+        transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        transform-style: preserve-3d; border: 1px solid rgba(255,255,255,0.1);
     }}
-    .stChatMessage p {{ color: #fff !important; }}
+    .image-3d-card:hover {{ transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) scale(1.02); }}
 
-    /* INPUT */
-    [data-testid="stChatInputContainer"] {{ background-color: transparent !important; border: none !important; }}
-    .stChatInput textarea {{ border-radius: 30px !important; box-shadow: 0 5px 20px rgba(0,0,0,0.3) !important; }}
+    /* Chat Bubbles */
+    .stChatMessage {{ background: rgba(255,255,255,0.05) !important; border-radius: 15px !important; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1) !important; }}
+    .stChatMessage p {{ color: #eee !important; font-size: 16px; }}
     </style>
 
     <div class="header-container">
-        <div class="header-titles-group">
+        <div style="text-align:center;">
             <h1 class="header-center-title">EL LOCO MUÑOZ AI</h1>
-            <span class="header-subtitle">{st.session_state.current_title}</span>
+            <div style="font-size:11px; color:#777; text-transform: uppercase; font-weight: bold;">{st.session_state.current_title}</div>
         </div>
-        <img src="{URL_LOGO_SAVOIA}" class="header-right-logo">
     </div>
     """, unsafe_allow_html=True)
 
-# --- 5. SIDEBAR: MENU SENZA EMOJI ---
+# --- 5. SIDEBAR: GESTIONE MODERNA ---
 with st.sidebar:
     st.markdown("<br><br>", unsafe_allow_html=True)
-    if st.button("Nuova chat", use_container_width=True, type="primary"):
-        reset_to_welcome()
-        st.rerun()
+    
+    # Pulsante Nuova Chat (Nero/Bianco con stylable container)
+    with stylable_container(
+        key="black_button",
+        css_styles="""
+            button {
+                background-color: #000000 !important;
+                color: #ffffff !important;
+                border-radius: 5px !important;
+                font-weight: bold !important;
+                text-transform: uppercase !important;
+                border: none !important;
+                height: 45px !important;
+            }
+        """,
+    ):
+        if st.button("Nuova chat", use_container_width=True):
+            reset_to_welcome()
+            st.rerun()
     
     st.markdown("---")
-    st.caption("STORICO")
+    st.caption("STORICO CONVERSAZIONI")
     
+    # Lista Chat
     for i, session in enumerate(st.session_state.chat_sessions):
-        col_t, col_m = st.columns([0.8, 0.2])
+        col_chat, col_opt = st.columns([0.85, 0.15])
         
-        with col_t:
-            if st.button(session['title'], key=f"load_{i}", use_container_width=True):
+        with col_chat:
+            if st.button(session['title'], key=f"session_{i}", use_container_width=True):
                 st.session_state.messages = session['content']
                 st.session_state.current_title = session['title']
                 st.session_state.current_chat_id = session.get('id')
                 st.rerun()
         
-        with col_m:
-            # Popover con icona ingranaggio (⚙️ mantenuta solo come glifo, testo pulito)
-            with st.popover("⚙️", key=f"pop_{i}"):
-                st.write("Opzioni")
-                
-                # RINOMINA (Senza Emoji)
-                new_title = st.text_input("Nuovo nome", value=session['title'], key=f"edit_{i}", label_visibility="collapsed")
-                if st.button("Salva", key=f"save_{i}", use_container_width=True):
+        with col_opt:
+            with st.popover("▼", key=f"pop_{i}"):
+                # Opzioni senza emoji
+                st.markdown("**Opzioni chat**")
+                new_title = st.text_input("Rinomina", value=session['title'], key=f"rename_{i}")
+                if st.button("Conferma nome", key=f"sv_{i}", use_container_width=True):
                     st.session_state.chat_sessions[i]['title'] = new_title
-                    if st.session_state.current_chat_id == session.get('id'):
-                        st.session_state.current_title = new_title
-                    st.rerun()
-
+                    st.rerun() # Il rerun chiude il menu automaticamente
+                
                 st.markdown("---")
                 
-                # ELIMINA (Senza Emoji)
-                if st.button("Elimina", key=f"del_{i}", type="primary", use_container_width=True):
-                    target_id = session.get('id')
-                    # Rimuovi la sessione
+                if st.button("Elimina", key=f"del_{i}", use_container_width=True):
+                    tid = session.get('id')
                     st.session_state.chat_sessions.pop(i)
-                    # Se è la chat che stiamo visualizzando, torna alla home
-                    if st.session_state.current_chat_id == target_id:
+                    if st.session_state.current_chat_id == tid:
                         reset_to_welcome()
-                    st.rerun()
+                    st.rerun() # Il rerun chiude il menu automaticamente e torna alla home
 
-# --- 6. CORE AI E BENVENUTO ---
+# --- 6. AREA CHAT PRINCIPALE ---
 if st.session_state.api_key:
     client = Groq(api_key=st.session_state.api_key)
 
     if not st.session_state.messages:
+        # Schermata Iniziale
         st.markdown(f"""
             <div class="welcome-container">
                 <div class="image-3d-card"></div>
-                <div class="welcome-text" style="text-align:center;">
-                    <h1 style="color:white;">Pronto per la battaglia?</h1>
-                    <p style="color:#ccc;">Chiedi al Loco qualsiasi cosa sul Savoia 1908.</p>
+                <div style="margin-top:40px; color:#fff;">
+                    <h2 style="letter-spacing:4px; font-weight:300;">ONORA LA MAGLIA</h2>
+                    <p style="opacity:0.5; font-style: italic;">Parla con la leggenda del Savoia 1908.</p>
                 </div>
             </div>
         """, unsafe_allow_html=True)
     else:
-        for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
+        # Render messaggi
+        for m in st.session_state.messages:
+            with st.chat_message(m["role"]):
+                st.markdown(m["content"])
 
-    if prompt := st.chat_input("Scrivi al Loco..."):
+    # Input Chat
+    if prompt := st.chat_input("Invia un messaggio..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.rerun()
 
-    # Logica risposta assistente (fuori dall'input per gestire il rerun correttamente)
+    # Risposta AI
     if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
         with st.chat_message("assistant"):
-            sys_instr = "Sei El loco Muñoz del Savoia 1908. Rispondi con fierezza."
+            sys_instr = "Sei El loco Muñoz. Rispondi con la foga e l'orgoglio di un guerriero del Savoia."
             msgs = [{"role": "system", "content": sys_instr}] + st.session_state.messages
             
             completion = client.chat.completions.create(
@@ -218,14 +200,14 @@ if st.session_state.api_key:
             st.markdown(res)
             st.session_state.messages.append({"role": "assistant", "content": res})
             
-            # Salvataggio prima chat
+            # Salvataggio sessione
             if len(st.session_state.messages) == 2:
                 st.session_state.current_title = generate_ai_summary(prompt, res)
-                new_id = f"chat_{len(st.session_state.chat_sessions)}"
-                st.session_state.current_chat_id = new_id
+                cid = f"id_{len(st.session_state.chat_sessions)}"
+                st.session_state.current_chat_id = cid
                 st.session_state.chat_sessions.insert(0, {
-                    "id": new_id,
-                    "title": st.session_state.current_title,
+                    "id": cid, 
+                    "title": st.session_state.current_title, 
                     "content": list(st.session_state.messages)
                 })
             else:
