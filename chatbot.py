@@ -14,10 +14,18 @@ URL_SFONDO = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg"
 URL_LOGO_SAVOIA = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Savoia_1908_logo.png/600px-Savoia_1908_logo.png"
 URL_IMMAGINE_PNG = "https://cdn-icons-png.flaticon.com/512/1141/1141771.png" 
 
-# --- 3. CSS CUSTOM: CONTRASTO, HEADER FISSO E INPUT COMPATTO ---
+# --- 3. GESTIONE STATO SESSIONE ---
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "chat_sessions" not in st.session_state:
+    st.session_state.chat_sessions = []
+if "current_title" not in st.session_state:
+    st.session_state.current_title = "Nuova Conversazione"
+
+# --- 4. CSS CUSTOM: FIX TOTALI ---
 st.markdown(f"""
     <style>
-    /* Sfondo 4K con oscuramento calibrato per la profondità */
+    /* Sfondo 4K con overlay dinamico */
     .stApp {{
         background-image: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.85) 100%), url("{URL_SFONDO}");
         background-size: cover;
@@ -25,146 +33,175 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
 
-    /* Barra Superiore Bianca (Testo Nero Leggibile) */
+    /* BARRA SUPERIORE BIANCA FIXATA */
     .custom-header {{
         position: fixed;
         top: 0; left: 0; width: 100%; height: 70px;
         background-color: #FFFFFF;
-        display: flex; align-items: center; justify-content: center;
+        display: flex; align-items: center;
         z-index: 1001;
         box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        padding: 0 30px;
     }}
-    .header-title {{
+    .header-left {{
+        display: flex; align-items: center; gap: 12px;
+        flex: 1;
+    }}
+    .header-center {{
+        flex: 2; text-align: center;
+        color: #333333 !important;
+        font-weight: 600; font-size: 18px;
+        font-family: 'Helvetica Neue', sans-serif;
+        font-style: italic;
+    }}
+    .header-right {{
+        flex: 1; display: flex; justify-content: flex-end;
+    }}
+    .header-bot-name {{
         color: #000000 !important;
-        font-weight: 900; font-size: 24px; margin: 0;
-        text-transform: uppercase; letter-spacing: 2px;
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        font-weight: 900; font-size: 18px;
+        text-transform: uppercase; margin: 0;
     }}
 
-    /* Spazio per non coprire la chat */
+    /* Padding per il contenuto principale */
     .main .block-container {{ padding-top: 100px !important; }}
 
-    /* Messaggi Chat: Sfondo scuro opaco per leggere bene il bianco */
+    /* SIDEBAR: FIX CONTRASTO TESTO */
+    [data-testid="stSidebar"] {{
+        background-color: #1a1a1a !important;
+        border-right: 1px solid #333;
+    }}
+    [data-testid="stSidebar"] .stMarkdown p, 
+    [data-testid="stSidebar"] h3, 
+    [data-testid="stSidebar"] span {{
+        color: #FFFFFF !important;
+    }}
+    
+    /* Bottoni Cronologia Chat */
+    .stButton>button {{
+        border-radius: 8px !important;
+        background-color: #2d2d2d !important;
+        color: #FFFFFF !important;
+        border: 1px solid #444 !important;
+        text-align: left !important;
+        font-size: 14px !important;
+        margin-bottom: 5px;
+        transition: all 0.2s;
+    }}
+    .stButton>button:hover {{
+        background-color: #404040 !important;
+        border-color: #FFFFFF !important;
+    }}
+
+    /* MESSAGGI CHAT */
     .stChatMessage {{
-        background: rgba(10, 10, 10, 0.9) !important;
+        background: rgba(10, 10, 10, 0.92) !important;
         border: 1px solid rgba(255, 255, 255, 0.15) !important;
         border-radius: 18px !important;
         margin-bottom: 15px;
     }}
     .stChatMessage p {{
         color: #FFFFFF !important;
-        font-size: 1.05rem !important;
         text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
     }}
 
-    /* Barra di input PICCOLA e centrata */
+    /* BARRA DI INPUT: PULITA E CHIARA */
     .stChatInputContainer {{
-        padding: 0 15% 20px 15% !important;
+        padding: 0 12% 25px 12% !important;
         background: transparent !important;
     }}
     .stChatInput textarea {{
-        background-color: rgba(30, 30, 30, 0.9) !important;
-        color: white !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        background-color: #FFFFFF !important; /* Bianca pulita */
+        color: #000000 !important; /* Scrittura nera */
+        border: 1px solid #ddd !important;
         border-radius: 12px !important;
-        height: 42px !important;
-    }}
-
-    /* Sidebar Dark Mode */
-    [data-testid="stSidebar"] {{
-        background-color: #080808 !important;
-        border-right: 1px solid #222;
-    }}
-    .stButton>button {{
-        border-radius: 8px !important;
-        background-color: #1a1a1a !important;
-        color: white !important;
-        border: 1px solid #333 !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
     }}
     </style>
 
     <div class="custom-header">
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <img src="{URL_IMMAGINE_PNG}" height="45">
-            <h1 class="header-title">EL LOCO MUNOZ AI</h1>
-            <img src="{URL_LOGO_SAVOIA}" height="45">
+        <div class="header-left">
+            <img src="{URL_IMMAGINE_PNG}" height="35">
+            <span class="header-bot-name">EL LOCO MUNOZ AI</span>
+        </div>
+        <div class="header-center">
+             {st.session_state.current_title}
+        </div>
+        <div class="header-right">
+            <img src="{URL_LOGO_SAVOIA}" height="35">
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-# --- 4. GESTIONE STATO E CRONOLOGIA ---
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "chat_sessions" not in st.session_state:
-    st.session_state.chat_sessions = [] # Lista di {"title": str, "content": list}
-
-# Funzione per salvare la chat con un titolo intelligente
-def archive_chat():
+# --- 5. LOGICA ARCHIVIAZIONE CHAT ---
+def archive_current_chat():
     if st.session_state.messages:
-        # Crea titolo: usa il primo messaggio utente (max 25 car.)
-        user_msgs = [m["content"] for m in st.session_state.messages if m["role"] == "user"]
-        raw_title = user_msgs[0] if user_msgs else "Conversazione Vuota"
-        smart_title = (raw_title[:25] + '...') if len(raw_title) > 25 else raw_title
-        
-        st.session_state.chat_sessions.insert(0, {"title": smart_title, "content": st.session_state.messages})
+        # Archivia la chat corrente con il suo titolo
+        st.session_state.chat_sessions.insert(0, {
+            "title": st.session_state.current_title,
+            "content": st.session_state.messages
+        })
+        # Reset sessione attuale
         st.session_state.messages = []
+        st.session_state.current_title = "Nuova Conversazione"
 
-# --- 5. SIDEBAR: NUOVA CHAT E STORICO ---
+# --- 6. SIDEBAR: AZIONI E STORICO ---
 with st.sidebar:
     st.markdown("<br><br><br>", unsafe_allow_html=True)
     if st.button("➕ NUOVA CHAT", use_container_width=True):
-        archive_chat()
+        archive_current_chat()
         st.rerun()
     
     st.markdown("---")
-    st.subheader("🕒 Chat Precedenti")
+    st.subheader("🕒 Cronologia")
     
     for i, session in enumerate(st.session_state.chat_sessions):
+        # Il nome del bottone è il titolo sintetizzato della chat
         if st.button(f"💬 {session['title']}", key=f"session_{i}", use_container_width=True):
-            # Recupera la sessione e scambiala con quella attuale
-            temp_content = st.session_state.messages
+            # Salva quella attuale e carica quella selezionata
+            archive_current_chat()
             st.session_state.messages = session['content']
+            st.session_state.current_title = session['title']
             st.session_state.chat_sessions.pop(i)
-            if temp_content:
-                # Ri-archivia la vecchia se non era vuota
-                raw_t = temp_content[0]["content"] if temp_content else "Chat"
-                st.session_state.chat_sessions.insert(0, {"title": raw_t[:25], "content": temp_content})
             st.rerun()
 
-# --- 6. MOTORE CHAT ---
+# --- 7. MOTORE CHAT (GROQ) ---
 try:
     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 except:
-    st.error("Errore: Chiave API Groq non configurata correttamente.")
+    st.error("Configura GROQ_API_KEY nei Secrets!")
     st.stop()
 
-# Visualizzazione messaggi
+# Mostra i messaggi correnti
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Prompt Utente
-if prompt := st.chat_input("Scrivi qui, cuore biancoscudato..."):
+# Gestione Input e Risposta
+if prompt := st.chat_input("Parla con il cuore dei Bianchi..."):
+    # Se è il primo messaggio, genera il titolo per l'header e la sidebar
+    if not st.session_state.messages:
+        title_raw = prompt.strip()[:35]
+        st.session_state.current_title = title_raw + ("..." if len(prompt) > 35 else "")
+    
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
         try:
-            # Personalità del bot
             instruction = (
-                "Sei EL LOCO MUNOZ AI. Parla come un ultra-esperto del Savoia 1908. "
-                "Usa un tono fiero, torrese, mai banale. Non scrivere testi troppo lunghi se non richiesto."
+                "Sei EL LOCO MUNOZ AI, custode della storia centenaria del Savoia 1908. "
+                "Rispondi con l'orgoglio di Torre Annunziata. Sii carismatico, fiero e mai banale."
             )
-            
             completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=[{"role": "system", "content": instruction}] + st.session_state.messages,
                 temperature=0.8
             )
-            
             response = completion.choices[0].message.content
             st.markdown(response)
             st.session_state.messages.append({"role": "assistant", "content": response})
+            st.rerun() # Aggiorna per sincronizzare titolo header
         except Exception as e:
-            st.error(f"Errore tecnico: {e}")
+            st.error(f"Errore: {e}")
