@@ -21,14 +21,16 @@ if "chat_sessions" not in st.session_state:
     st.session_state.chat_sessions = []
 if "current_title" not in st.session_state:
     st.session_state.current_title = "Nuova chat"
+# NUOVO: ID della chat attuale caricata
+if "current_chat_id" not in st.session_state:
+    st.session_state.current_chat_id = None
 if "api_key" not in st.session_state:
     try:
         st.session_state.api_key = st.secrets["GROQ_API_KEY"]
     except:
         st.session_state.api_key = None
 
-# --- 4. FUNZIONE SINTESI INTELLIGENTE AI (TITOLI) ---
-# Chiama l'AI per generare un titolo sintetico basato sul contesto.
+# ... generate_ai_summary rimarrà invariato ...
 def generate_ai_summary(user_prompt, assistant_response):
     if st.session_state.api_key:
         client_summary = Groq(api_key=st.session_state.api_key)
@@ -55,23 +57,14 @@ def generate_ai_summary(user_prompt, assistant_response):
     else:
         return "Nuova chat" # Fallback se API key manca
 
-# --- 5. LOGICA SALVATAGGIO IMMEDIATO E NUOVA CHAT ---
-# Salva la chat corrente istantaneamente e ne avvia una vuota.
-def instant_new_chat():
-    if st.session_state.messages:
-        # Se non è vuota, salvala con l'ultimo titolo generato
-        chat_id = f"chat_{len(st.session_state.chat_sessions)}"
-        # Aggiungi in cima alla lista (Recent)
-        st.session_state.chat_sessions.insert(0, {
-            "id": chat_id,
-            "title": st.session_state.current_title,
-            "content": list(st.session_state.messages)
-        })
-    # Reset per nuova chat vuota
+# NUOVO: Logica reset alla schermata di benvenuto
+def reset_to_welcome():
+    """Resetta l'interfaccia alla schermata di benvenuto senza salvare."""
     st.session_state.messages = []
     st.session_state.current_title = "Nuova chat"
+    st.session_state.current_chat_id = None # Rimuovi ID chat attuale
 
-# --- 6. CSS PERSONALIZZATO (TUTTI I CAMBIAMENTI RICHIESTI) ---
+# --- 4. CSS AGGIORNATO (HEADER CENTRALIZZATO E NASCONDI FRECCIA POPOVER) ---
 st.markdown(f"""
     <style>
     /* 1. Sfondo generale */
@@ -81,33 +74,38 @@ st.markdown(f"""
         background-attachment: fixed;
     }}
 
-    /* 2. Header Fisso e Centrato (El Loco Munoz AI) */
+    /* 2. Header Fisso e Centrato (El Loco Munoz AI + Titolo Chat sotto) */
     .header-container {{
         position: fixed;
         top: 0; left: 0; width: 100%; height: 65px;
         background: rgba(255, 255, 255, 0.98);
         display: flex; align-items: center; justify-content: center; /* Centratura totale */
-        z-index: 1000;
+        z-index: 999;
         border-bottom: 1px solid #ddd;
         padding: 0 40px;
     }}
-    /* Burger icon placeholder */
+    /* Burger icon placeholder - rimosso CSS specifico Sezione 8 ma mantenuto placeholder HTML */
     .header-container .burger-icon {{
-        position: absolute; left: 40px; font-size: 24px; color: #000; cursor: pointer;
+        /* Burger icon placeholder - rimosso CSS specifico */
+    }}
+    
+    /* Logo Savoia a destra con posizionamento assoluto */
+    .header-container .header-right-logo {{
+        position: absolute; right: 40px; height: 35px;
+        }}
+    /* Container per Titolo e Sottotitolo centrali */
+    .header-container .header-titles-group {{
+        display: flex; flex-direction: column; align-items: center;
     }}
     /* Titolo Principale Centrato */
-    .header-container .header-center-title {{
+    .header-container .header-titles-group .header-center-title {{
         color: #000 !important; font-weight: 800; font-size: 18px; text-transform: uppercase;
         letter-spacing: 1px; margin: 0;
     }}
     /* Sottotitolo (current chat title) */
-    .header-container .header-subtitle {{
-        color: #555 !important; font-weight: 500; font-style: italic; font-size: 13px; margin: 0 10px 0 0;
+    .header-container .header-titles-group .header-subtitle {{
+        color: #555 !important; font-weight: 500; font-style: italic; font-size: 13px; margin: 0;
     }}
-    /* Logo Savoia a destra */
-    .header-container .header-right-logo {{
-        position: absolute; right: 40px; height: 35px;
-        }}
 
     /* 3. Area Contenuto (Padding Header) */
     .main .block-container {{
@@ -123,7 +121,8 @@ st.markdown(f"""
     /* Colori testi e icone adattati al grigio */
     [data-testid="stSidebar"] .stMarkdown p, 
     [data-testid="stSidebar"] h2, 
-    [data-testid="stSidebar"] span {{
+    [data-testid="stSidebar"] span,
+    [data-testid="stSidebar"] label {{ /* Aggiunto label per Rinomina input */
         color: #333 !important;
     }}
     
@@ -140,6 +139,10 @@ st.markdown(f"""
     }}
 
     /* 6. Cronologia Chat: No X, Allineamento a Sinistra, Hover */
+    .sidebar-history-item-container {{
+        width: 100%;
+        text-align: left;
+    }}
     .sidebar-history-item {{
         width: 100% !important;
         border: none !important;
@@ -147,6 +150,7 @@ st.markdown(f"""
         color: #444 !important;
         text-align: left !important;
         padding: 10px 15px !important;
+        font-size: 14px !important;
         transition: 0.2s;
         display: block !important;
         border-radius: 8px !important;
@@ -157,12 +161,17 @@ st.markdown(f"""
     }}
     
     /* 7. Menù a comparsa (Gemini style con popover) */
-    .stPopover > button {{
+    [data-testid="stSidebar"] .stPopover > button {{
         background-color: transparent !important;
         border: none !important;
         color: #888 !important;
         padding: 0 !important;
         margin: 0;
+    }}
+    
+    /* NUOVO CSS mirato: Nascondi la freccia nel popover dei tre puntini verticali (⋮) */
+    [data-testid="stSidebar"] .stPopover > button div > span:last-child {{
+        display: none !important;
     }}
     
     /* 8. Messaggi Chat (Effetto Nuvola) */
@@ -200,82 +209,99 @@ st.markdown(f"""
     </style>
 
     <div class="header-container">
-        <!-- Burger icon placeholder for visual reference, not used for actual toggle -->
-        <div class="burger-icon">☰</div>
-        <!-- Main title: EL LOCO MUNOZ AI - Centered and permanent -->
-        <h1 class="header-center-title">EL LOCO MUÑOZ AI</h1>
-        <!-- Current chat dynamic title as subtitle -->
-        <span class="header-subtitle">{st.session_state.current_title}</span>
+        <!-- Burger icon placeholder - rimosso in Sezione 8 ma mantenuto placeholder HTML -->
+        <div class="burger-icon"></div>
+        <!-- Group for centered title and subtitle -->
+        <div class="header-titles-group">
+            <!-- Main title: EL LOCO MUNOZ AI - Centered and permanent -->
+            <h1 class="header-center-title">EL LOCO MUÑOZ AI</h1>
+            <!-- Current chat dynamic title as subtitle -->
+            <span class="header-subtitle">{st.session_state.current_title}</span>
+        </div>
         <!-- Savoia logo to the right -->
         <img src="{URL_LOGO_SAVOIA}" class="header-right-logo">
     </div>
     """, unsafe_allow_html=True)
 
-# --- 7. SIDEBAR ---
+# ... RIMOSSO: Sezione 8 TASTO CHIUSURA SIDEBAR (Tre lineette) ...
+
+# --- 6. SIDEBAR AGGIORNATA (LOGICA FUNZIONI CHAT) ---
 with st.sidebar:
     st.markdown("<br><br>", unsafe_allow_html=True)
-    # Pulsante Nuova Chat: Salva immediatamente quella attuale se piena
+    # Pulsante Nuova Chat: Ora resetta l'interfaccia senza salvare
     if st.button("✨ Nuova chat", use_container_width=True, key="new_chat_btn", type="primary"):
-        instant_new_chat()
+        reset_to_welcome()
         st.rerun()
     
     st.markdown("---")
     st.caption("RECENTI")
     
-    # Lista Cronologia con Menù Gemini Style (Puntini e Popover)
+    # Lista Cronologia con Menù Gemini Style (Puntini e Popover funzionanti, no freccia)
     for i, session in enumerate(st.session_state.chat_sessions):
         # Colonne per allineare il nome a sinistra e i puntini a destra
         col_title, col_menu = st.columns([0.9, 0.1])
         
         with col_title:
             # Nome della chat allineato a sinistra (con hover effect CSS)
-            if st.button(session['title'], key=f"load_{i}", use_container_width=True, help="Carica chat"):
-                # Se è la chat attuale, non fare nulla
-                if st.session_state.messages == session['content']:
-                    pass
-                else:
+            st.markdown(f'<div class="sidebar-history-item-container">', unsafe_allow_html=True)
+            if st.button(session['title'], key=f"load_{i}", use_container_width=True, help="Carica chat", type="secondary"):
+                # Se è la chat attuale, non fare nulla (ottimizzazione)
+                if st.session_state.current_chat_id != session.get('id'):
                     # Carica la chat selezionata
                     st.session_state.messages = session['content']
                     st.session_state.current_title = session['title']
+                    st.session_state.current_chat_id = session.get('id') # Imposta ID attuale
                     st.rerun()
+            st.markdown(f'</div>', unsafe_allow_html=True)
         
         with col_menu:
-            # Tasto "tre puntini" verticale (⋮)
-            with st.popover("⋮", key=f"popover_{i}"):
-                # Menù a comparsa (stile Gemini) con icone e azioni
-                # Condividi (placeholder)
-                st.markdown(f'<a href="#" style="text-decoration: none; color: #333; display: block; margin-bottom: 10px;">'
-                            f'<span style="font-size: 16px; margin-right: 10px;">🔗</span>Condividi conversazione</a>', unsafe_allow_html=True)
-                # Fissa (placeholder)
-                st.markdown(f'<a href="#" style="text-decoration: none; color: #333; display: block; margin-bottom: 10px;">'
-                            f'<span style="font-size: 16px; margin-right: 10px;">📌</span>Fissa</a>', unsafe_allow_html=True)
-                # Rinomina (placeholder)
-                st.markdown(f'<a href="#" style="text-decoration: none; color: #333; display: block; margin-bottom: 10px;">'
-                            f'<span style="font-size: 16px; margin-right: 10px;">✏️</span>Rinomina</a>', unsafe_allow_html=True)
+            # Tasto "tre puntini" verticale (⋮) con CSS per nascondere la freccia giù
+            # use_container_width=False per il popover stesso
+            with st.popover("⋮", key=f"popover_{i}", use_container_width=False):
+                # Menù a comparsa (stile Gemini) con pulsanti funzionanti
                 
-                # Elimina (azione reale con conferma)
-                st.markdown(f'<a href="#" style="text-decoration: none; color: #d32f2f; display: block;">'
-                            f'<span style="font-size: 16px; margin-right: 10px;">🗑️</span>Elimina</a>', unsafe_allow_html=True)
-                # Utilizziamo un button invisibile sovrapposto per catturare il click reale senza ricaricare la pagina
-                if st.button(session['title'], key=f"confirm_del_{i}", help="Clicca per confermare eliminazione", use_container_width=True):
-                    st.session_state.chat_sessions.pop(i)
-                    st.rerun()
+                st.markdown("**Gestisci chat**")
+                
+                # 1. Fissa conversazione (placeholder per ora)
+                if st.button("📌 Fissa", key=f"fissa_{i}", use_container_width=True):
+                    st.toast("Funzione 'Fissa' non ancora implementata.")
+                    # st.rerun()
+                
+                # 2. Rinomina (mostra input e salva)
+                with st.container():
+                    st.markdown("**Rinomina**")
+                    col_input, col_save = st.columns([0.7, 0.3])
+                    with col_input:
+                        new_title = st.text_input("Nuovo titolo", value=session['title'], key=f"rinomina_in_{i}", label_visibility="collapsed")
+                    with col_save:
+                        if st.button("💾", key=f"salva_{i}", help="Salva nuovo titolo", type="primary"):
+                            if new_title and new_title != session['title']:
+                                # Semplice rinomina manuale
+                                final_title = new_title 
+                                st.session_state.chat_sessions[i]['title'] = final_title
+                                
+                                # Se stiamo rinominando la chat attuale, aggiorna anche l'header subtitle
+                                if st.session_state.current_chat_id == session.get('id'):
+                                    st.session_state.current_title = final_title
+                                    
+                                st.rerun() # Chiude popover e aggiorna sidebar
 
-# --- 8. TASTO CHIUSURA SIDEBAR (Tre lineette) ---
-# Un pulsante fluttuante in alto a sinistra per aprire/chiudere la sidebar.
-# L'effetto toggle è gestito nativamente da Streamlit tramite lo stato iniziale.
-# Questo pulsante agisce come toggle nativo.
-# Per renderlo funzionale come toggle dinamico, ricarichiamo la pagina forzando il cambio stato.
-if st.session_state.get('initial_sidebar_state', 'expanded') == 'expanded':
-    if st.button("☰", key="sidebar_close_btn", help="Chiudi sidebar"):
-        st.session_state.initial_sidebar_state = 'collapsed'
-        st.rerun()
-else:
-    if st.button("☰", key="sidebar_open_btn", help="Apri sidebar"):
-        st.session_state.initial_sidebar_state = 'expanded'
-        st.rerun()
+                # 3. Condividi (placeholder per ora)
+                if st.button("🔗 Condividi", key=f"condividi_{i}", use_container_width=True):
+                    st.toast("Funzione 'Condividi' non ancora implementata.")
+                    # st.rerun()
 
-# --- 9. CORE AI ---
+                # 4. Elimina conversazione (conferma)
+                with st.expander("🗑️ Elimina conversazione"):
+                    st.warning("Sei sicuro? Questa azione non è reversibile.")
+                    if st.button("Conferma eliminazione", key=f"confirm_del_{i}", type="primary", use_container_width=True):
+                        st.session_state.chat_sessions.pop(i)
+                        # Se stiamo eliminando la chat attuale, resetta l'interfaccia
+                        if st.session_state.get('current_chat_id') == session.get('id'):
+                            reset_to_welcome()
+                        st.rerun()
+
+# ... CORE AI AGGIORNATO (LOGICA CREAZIONE CHAT DOPO PRIMO SCAMBIO COMPLETO) ...
 if not st.session_state.api_key:
     st.error("Configura GROQ_API_KEY nei Secrets.")
     st.stop()
@@ -283,37 +309,53 @@ if not st.session_state.api_key:
 client = Groq(api_key=st.session_state.api_key)
 
 # Visualizzazione dei messaggi correnti
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+# NUOVO: Aggiungi un contenitore principale per l'area chat per gestire lo scroll se necessario
+chat_container = st.container()
+
+with chat_container:
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
 # Input Utente (PULITO: No grigio, Pill shape)
 if prompt := st.chat_input("Chiedi al Loco..."):
     # Aggiungi messaggio utente
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    with chat_container:
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-    with st.chat_message("assistant"):
-        try:
-            # Personalità del bot
-            sys_instr = "Sei El loco Muñoz, l'anima ruggente del Savoia 1908. Rispondi con fierezza torrese."
-            messages_full = [{"role": "system", "content": sys_instr}] + st.session_state.messages
-            
-            completion = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=messages_full,
-                temperature=0.7
-            )
-            res = completion.choices[0].message.content
-            
-            # SINTESI INTELLIGENTE TITOLO (AI): Al primo scambio, genera il titolo AI dinamico
-            if len(st.session_state.messages) == 1:
-                # Chiama la funzione per generare il titolo tramite AI
-                st.session_state.current_title = generate_ai_summary(prompt, res)
-            
-            st.markdown(res)
-            st.session_state.messages.append({"role": "assistant", "content": res})
-            st.rerun()
-        except Exception as e:
-            st.error(f"Errore: {e}")
+    with chat_container:
+        with st.chat_message("assistant"):
+            try:
+                # Personalità del bot
+                sys_instr = "Sei El loco Muñoz, l'anima ruggente del Savoia 1908. Rispondi con fierezza torrese."
+                messages_full = [{"role": "system", "content": sys_instr}] + st.session_state.messages
+                
+                completion = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=messages_full,
+                    temperature=0.7
+                )
+                res = completion.choices[0].message.content
+                
+                st.markdown(res)
+                st.session_state.messages.append({"role": "assistant", "content": res})
+                
+                # AGGIORNATO: Al primo scambio completo (utente e assistente), genera titolo AI e SALVA
+                if len(st.session_state.messages) == 2:
+                    # Chiama la funzione per generare il titolo tramite AI
+                    st.session_state.current_title = generate_ai_summary(prompt, res)
+                    
+                    # Salva questa NUOVA chat
+                    chat_id = f"chat_{len(st.session_state.chat_sessions)}"
+                    st.session_state.current_chat_id = chat_id # Imposta ID attuale
+                    st.session_state.chat_sessions.insert(0, {
+                        "id": chat_id,
+                        "title": st.session_state.current_title,
+                        "content": list(st.session_state.messages)
+                    })
+                
+                st.rerun() # Forza aggiornamento per vedere i messaggi e il titolo header
+            except Exception as e:
+                st.error(f"Errore: {e}")
