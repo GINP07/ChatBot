@@ -5,156 +5,129 @@ from groq import Groq
 st.set_page_config(
     page_title="EL LOCO MUNOZ AI", 
     page_icon="⚪", 
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# --- 2. CSS AVANZATO: ANIMAZIONI 3D & GLASSMORPHISM ---
-st.markdown("""
+# --- CONFIGURAZIONE SFONDO ---
+# Incolla qui il link della tua immagine (assicurati che finisca in .jpg, .png o .webp)
+URL_SFONDO = "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop" 
+
+# --- 2. CSS AVANZATO (CONTRASTO E LEGGIBILITÀ) ---
+st.markdown(f"""
     <style>
-    /* Sfondo animato sfumato scuro */
-    .stApp {
-        background: linear-gradient(-45deg, #000000, #1a1a1a, #333333, #0f0f0f);
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
-        color: white;
-    }
+    /* Sfondo Immagine con Overlay Scuro */
+    .stApp {{
+        background-image: url("{URL_SFONDO}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
 
-    @keyframes gradientBG {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
+    /* Filtro scuro per far risaltare il testo */
+    .stApp::before {{
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.7); /* Aumentato a 0.7 per massimo contrasto */
+        z-index: -1;
+    }}
 
-    /* Effetto Vetro per i messaggi della chat */
-    .stChatMessage {
-        background: rgba(255, 255, 255, 0.03) !important;
-        backdrop-filter: blur(12px) saturate(180%);
-        -webkit-backdrop-filter: blur(12px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 25px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-        margin-bottom: 15px;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        animation: fadeInSlide 0.6s ease-out;
-    }
+    /* TESTO BIANCO ASSOLUTO PER TUTTO */
+    h1, h2, h3, p, span, li, label, .stMarkdown {{
+        color: #FFFFFF !important;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.8) !important;
+    }}
 
-    /* Animazione al passaggio del mouse sui messaggi */
-    .stChatMessage:hover {
-        transform: translateY(-8px) scale(1.01);
-        border: 1px solid rgba(255, 255, 255, 0.4) !important;
-        background: rgba(255, 255, 255, 0.07) !important;
-    }
-
-    @keyframes fadeInSlide {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Bottoni stile 3D Neumorphism / Modern */
-    .stButton>button {
-        background: white !important;
-        color: black !important;
-        border: none !important;
-        border-radius: 15px !important;
-        padding: 0.6rem 2rem !important;
-        font-weight: 800 !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    .stButton>button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
-    }
-
-    /* Input Chat più moderno */
-    .stChatInputContainer {
-        background-color: transparent !important;
-        border: none !important;
-    }
-    
-    .stChatInput {
-        border-radius: 20px !important;
+    /* MESSAGGI CHAT: EFFETTO VETRO CHIARO */
+    .stChatMessage {{
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        background: rgba(0, 0, 0, 0.5) !important;
-    }
+        border-radius: 20px !important;
+        margin-bottom: 15px;
+        padding: 15px !important;
+    }}
 
-    /* Sidebar personalizzata */
-    [data-testid="stSidebar"] {
-        background-color: rgba(0, 0, 0, 0.8) !important;
+    /* STILE TESTO NEI MESSAGGI */
+    .stChatMessage p {{
+        color: #FFFFFF !important;
+        font-size: 1.1rem !important;
+        line-height: 1.5;
+    }}
+
+    /* SIDEBAR: SCURA ED ELEGANTE */
+    [data-testid="stSidebar"] {{
+        background-color: rgba(10, 10, 10, 0.9) !important;
         border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
+    }}
+
+    /* INPUT CHAT: VISIBILE */
+    .stChatInput textarea {{
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 15px !important;
+    }}
     
-    /* Nascondi header standard Streamlit per pulizia */
-    header {visibility: hidden;}
+    /* FIX PER ICONE E BOTTONI SIDEBAR */
+    .stSelectbox label {{ color: white !important; }}
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. SIDEBAR: CONTROLLI E LOGO ---
+# --- 3. SIDEBAR: LOGO E IMPOSTAZIONI ---
 with st.sidebar:
-    st.markdown("<h1 style='text-align: center; color: white; font-size: 28px;'>EL LOCO MUNOZ</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; border-bottom: 2px solid white; padding-bottom: 10px;'>EL LOCO MUNOZ</h1>", unsafe_allow_html=True)
     
-    # Logo Savoia (Immagine da URL o locale)
+    # Logo del Savoia
     st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Savoia_1908_logo.png/600px-Savoia_1908_logo.png", use_container_width=True)
     
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    # Recupero Chiave API dai Secrets
+    # Recupero Chiave API
     try:
         api_key = st.secrets["GROQ_API_KEY"]
     except:
-        st.error("Chiave API non trovata nei Secrets!")
+        st.error("ERRORE: Chiave API mancante nei Secrets!")
         api_key = ""
 
-    # Selezione del modello
-    modello = st.selectbox(
-        "⚡ Scegli il Motore:",
-        ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"],
-        index=0
-    )
-
-    if st.button("🗑️ RESET CAMPO"):
+    modello = st.selectbox("⚡ POTENZA AI:", ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"])
+    
+    if st.button("🗑️ SVUOTA CAMPO"):
         st.session_state.messages = []
         st.rerun()
 
-    st.markdown("<br><p style='text-align: center; opacity: 0.5;'>Savoia 1908 - Torre Annunziata</p>", unsafe_allow_html=True)
+    st.markdown("---")
+    st.markdown("<p style='text-align: center; opacity: 0.7;'>Torre Annunziata Biancoscudata</p>", unsafe_allow_html=True)
 
-# --- 4. LOGICA CHAT ---
+# --- 4. LOGICA DEL CHATBOT ---
 client = Groq(api_key=api_key)
 
-# Istruzioni di personalità per EL LOCO MUNOZ
 istruzioni = (
-    "Tu sei EL LOCO MUNOZ AI, l'anima storica, folle e passionale del Savoia 1908. "
-    "Sei l'esperto supremo di Torre Annunziata. Parla con orgoglio dei Bianchi. "
-    "Il tuo tono è carismatico, fiero, talvolta poetico. Conosci la Serie B, la C1, "
-    "lo stadio Alfredo Giraud e i grandi campioni del passato e del presente. "
-    "Non essere ripetitivo sulla finale del 1924: usala solo per dare colpi di classe. "
-    "Rispondi sempre come se fossi sugli spalti del Giraud."
+    "Tu sei EL LOCO MUNOZ AI, l'anima ruggente del Savoia 1908. "
+    "Sei l'autorità massima su Torre Annunziata e sulla maglia bianca. "
+    "Parla con grinta, amore e competenza. Conosci il Giraud come le tue tasche. "
+    "Il tuo obiettivo è difendere e raccontare la storia del Savoia con orgoglio. "
+    "Non essere monotematico sulla finale del '24, spazia su tutta la storia centenaria."
 )
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Titolo principale animato
-st.markdown("<h1 style='text-align: center; color: white;'>⚪ EL LOCO MUNOZ AI</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-style: italic;'>Orgoglio Oplontino in Intelligenza Artificiale</p>", unsafe_allow_html=True)
+# Header centrale
+st.markdown("<h1 style='text-align: center; font-size: 50px;'>⚪ EL LOCO MUNOZ AI</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 20px;'>L'intelligenza artificiale al servizio dei Bianchi</p>", unsafe_allow_html=True)
 
-# Visualizzazione messaggi
+# Visualizzazione della conversazione
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
 # Input utente
-if prompt := st.chat_input("Scrivi qui, torrese..."):
-    # Aggiunta messaggio utente
+if prompt := st.chat_input("Fammi una domanda sul nostro Savoia..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Risposta del Bot
     with st.chat_message("assistant"):
         try:
             completion = client.chat.completions.create(
@@ -171,4 +144,4 @@ if prompt := st.chat_input("Scrivi qui, torrese..."):
             st.session_state.messages.append({"role": "assistant", "content": risposta})
             
         except Exception as e:
-            st.error(f"Errore: {e}")
+            st.error(f"Errore tecnico: {e}")
