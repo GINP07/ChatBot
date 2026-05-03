@@ -10,8 +10,7 @@ st.set_page_config(
 
 # --- CONFIGURAZIONE SFONDO ---
 # Incolla qui il link della tua immagine (assicurati che finisca in .jpg, .png o .webp)
-URL_SFONDO = "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop" 
-
+URL_SFONDO = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg"
 # --- 2. CSS AVANZATO (CONTRASTO E LEGGIBILITÀ) ---
 st.markdown(f"""
     <style>
