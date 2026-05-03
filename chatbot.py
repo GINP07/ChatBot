@@ -3,13 +3,13 @@ from groq import Groq
 
 # --- 1. CONFIGURAZIONE PAGINA ---
 st.set_page_config(
-    page_title="Gemini - El Loco Munoz", 
-    page_icon="https://www.gstatic.com/lamda/images/favicon_v1_150160d133481239.png", # Icona Gemini
+    page_title="EL LOCO MUNOZ AI", 
+    page_icon="⚪", 
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- 2. CONFIGURAZIONE RISORSE ---
+# --- 2. RISORSE ---
 URL_SFONDO = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg" 
 URL_LOGO_SAVOIA = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Savoia_1908_logo.png/600px-Savoia_1908_logo.png"
 
@@ -21,102 +21,90 @@ if "chat_sessions" not in st.session_state:
 if "current_title" not in st.session_state:
     st.session_state.current_title = "Nuova chat"
 
-# --- 4. CSS PER REPLICARE L'INTERFACCIA GEMINI ---
+# --- 4. CSS PROFESSIONALE: EFFETTO NUVOLA E INPUT COMPATTO ---
 st.markdown(f"""
     <style>
-    /* Sfondo generale con immagine curva Savoia */
+    /* Sfondo 4K con overlay scuro per far risaltare le 'nubi' */
     .stApp {{
-        background-image: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url("{URL_SFONDO}");
+        background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("{URL_SFONDO}");
         background-size: cover;
         background-attachment: fixed;
     }}
 
-    /* SIDEBAR (GRIGIO GEMINI) */
-    [data-testid="stSidebar"] {{
-        background-color: #f0f4f9 !important;
-        border-right: none !important;
-        padding-top: 20px;
-    }}
-    
-    /* Bottoni Sidebar (Titoli chat) */
-    .stButton>button {{
-        background-color: transparent !important;
-        border: none !important;
-        color: #1f1f1f !important;
-        text-align: left !important;
-        padding: 10px 15px !important;
-        width: 100% !important;
-        border-radius: 20px !important;
-        font-size: 14px !important;
-        font-weight: 500 !important;
-    }}
-    .stButton>button:hover {{
-        background-color: #e1e5ea !important;
-    }}
-    
-    /* Titolo Chat Attiva nella Sidebar */
-    .active-chat {{
-        background-color: #d3e3fd !important; /* Blu chiaro selezione Gemini */
-    }}
-
-    /* HEADER SUPERIORE */
+    /* HEADER SUPERIORE: Massima Leggibilità */
     .header-container {{
         position: fixed;
-        top: 0; left: 0; width: 100%; height: 60px;
-        background: rgba(255,255,255,0.8);
-        backdrop-filter: blur(10px);
+        top: 0; left: 0; width: 100%; height: 70px;
+        background: rgba(255, 255, 255, 0.95);
         display: flex; align-items: center; justify-content: space-between;
-        padding: 0 20px; z-index: 1000;
+        padding: 0 30px; z-index: 1000;
+        border-bottom: 1px solid #ddd;
     }}
-    .header-text {{
-        color: #444746; font-size: 18px; font-weight: 400;
-    }}
+    .header-left {{ color: #000; font-weight: 800; font-size: 20px; text-transform: uppercase; }}
+    .header-center {{ color: #333 !important; font-weight: 500; font-style: italic; }}
 
-    /* AREA CHAT */
+    /* SIDEBAR DARK */
+    [data-testid="stSidebar"] {{
+        background-color: #111 !important;
+        border-right: 1px solid #333;
+    }}
+    [data-testid="stSidebar"] * {{ color: #eee !important; }}
+    .stButton>button {{
+        border-radius: 20px !important;
+        background-color: #222 !important;
+        border: 1px solid #444 !important;
+        transition: 0.3s;
+    }}
+    .stButton>button:hover {{ border-color: #fff !important; background-color: #333 !important; }}
+
+    /* AREA CHAT E BLOCCHI 'NUVOLA' */
     .main .block-container {{
         max-width: 850px !important;
-        padding-top: 80px !important;
+        padding-top: 100px !important;
     }}
-
-    /* MESSAGGI */
     .stChatMessage {{
-        background-color: transparent !important;
-        border: none !important;
+        background: rgba(255, 255, 255, 0.08) !important; /* Effetto nube traslucida */
+        backdrop-filter: blur(12px); /* Sfuma lo sfondo dietro il blocco */
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 20px !important;
+        margin-bottom: 15px;
+        padding: 20px !important;
     }}
-    .stChatMessage [data-testid="stMarkdownContainer"] p {{
-        color: #1f1f1f !important;
-        font-size: 16px !important;
-        line-height: 1.6 !important;
+    .stChatMessage p {{
+        color: #FFFFFF !important;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
     }}
 
-    /* BARRA INPUT (ARROTONDATA GEMINI) */
+    /* BARRA INPUT: PICCOLA, CENTRATA E SMUSSATA */
     .stChatInputContainer {{
         background-color: transparent !important;
-        padding-bottom: 40px !important;
+        display: flex;
+        justify-content: center;
+        padding-bottom: 50px !important;
+    }}
+    .stChatInput {{
+        max-width: 700px !important; /* Non occupa tutta la pagina */
     }}
     .stChatInput textarea {{
-        background-color: #f0f4f9 !important;
-        border-radius: 28px !important;
-        border: none !important;
-        padding: 15px 25px !important;
-        color: #1f1f1f !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+        background-color: #FFFFFF !important;
+        border-radius: 30px !important; /* Bordi molto smussati */
+        border: 1px solid #ccc !important;
+        color: #000 !important;
+        padding: 12px 25px !important;
     }}
     </style>
 
     <div class="header-container">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:20px; font-weight:500; color:#1f1f1f;">Gemini</span>
-        </div>
-        <div class="header-text">{st.session_state.current_title}</div>
-        <div>
-            <img src="{URL_LOGO_SAVOIA}" height="35">
+        <div class="header-left">EL LOCO MUNOZ AI</div>
+        <div class="header-center">{st.session_state.current_title}</div>
+        <div class="header-right">
+            <img src="{URL_LOGO_SAVOIA}" height="45">
         </div>
     </div>
     """, unsafe_allow_html=True)
 
 # --- 5. LOGICA CHAT ---
-def new_chat():
+def reset_chat():
     if st.session_state.messages:
         st.session_state.chat_sessions.insert(0, {
             "title": st.session_state.current_title,
@@ -127,43 +115,33 @@ def new_chat():
 
 # --- 6. SIDEBAR ---
 with st.sidebar:
+    st.markdown("<br><br>", unsafe_allow_html=True)
     if st.button("➕ Nuova chat", use_container_width=True):
-        new_chat()
+        reset_chat()
         st.rerun()
     
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#444746; font-size:12px; font-weight:500; padding-left:15px;'>Recenti</p>", unsafe_allow_html=True)
-    
+    st.markdown("---")
+    st.subheader("Recenti")
     for i, session in enumerate(st.session_state.chat_sessions):
-        if st.button(f" {session['title']}", key=f"s_{i}"):
-            # Salva corrente e carica vecchia
-            temp_m = list(st.session_state.messages)
-            temp_t = st.session_state.current_title
-            
+        if st.button(f"💬 {session['title']}", key=f"s_{i}", use_container_width=True):
             st.session_state.messages = session['content']
             st.session_state.current_title = session['title']
-            
-            st.session_state.chat_sessions.pop(i)
-            if temp_m:
-                st.session_state.chat_sessions.insert(0, {"title": temp_t, "content": temp_m})
             st.rerun()
 
-# --- 7. CORE AI (GROQ) ---
+# --- 7. CORE AI ---
 try:
     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 except:
-    st.error("Inserisci GROQ_API_KEY nei Secrets.")
+    st.error("Inserisci la chiave API nei Secrets.")
     st.stop()
 
-# Visualizzazione messaggi
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Input
-if prompt := st.chat_input("Chiedi a Gemini..."):
+if prompt := st.chat_input("Chiedi al Loco..."):
     if not st.session_state.messages:
-        st.session_state.current_title = (prompt[:35] + '...') if len(prompt) > 35 else prompt
+        st.session_state.current_title = (prompt[:30] + '...') if len(prompt) > 30 else prompt
     
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -171,15 +149,15 @@ if prompt := st.chat_input("Chiedi a Gemini..."):
 
     with st.chat_message("assistant"):
         try:
-            instruction = "Sei EL LOCO MUNOZ AI, custode della storia del Savoia 1908. Rispondi con lo stile di Gemini, professionale ma appassionato."
-            response = client.chat.completions.create(
+            instruction = "Sei EL LOCO MUNOZ AI, l'anima ruggente del Savoia 1908. Rispondi con fierezza."
+            completion = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=[{"role": "system", "content": instruction}] + st.session_state.messages,
                 temperature=0.7
             )
-            full_res = response.choices[0].message.content
-            st.markdown(full_res)
-            st.session_state.messages.append({"role": "assistant", "content": full_res})
+            res = completion.choices[0].message.content
+            st.markdown(res)
+            st.session_state.messages.append({"role": "assistant", "content": res})
             st.rerun()
         except Exception as e:
             st.error(f"Errore: {e}")
