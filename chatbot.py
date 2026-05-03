@@ -12,12 +12,10 @@ CHAT_FILE = "chat_history.json"
 st.markdown(f"""
 <style>
 
-/* GLOBAL */
 html, body, [class*="css"] {{
     font-family: 'Inter', sans-serif;
 }}
 
-/* BACKGROUND */
 .stApp {{
     background:
     linear-gradient(rgba(0,0,0,0.82), rgba(0,0,0,0.92)),
@@ -26,7 +24,6 @@ html, body, [class*="css"] {{
     background-attachment: fixed;
 }}
 
-/* HEADER */
 .header {{
     position: fixed;
     top: 0;
@@ -51,9 +48,8 @@ html, body, [class*="css"] {{
     padding-top: 100px;
 }}
 
-/* SIDEBAR */
 [data-testid="stSidebar"] {{
-    background: #f2f2f2;
+    background: #f0f0f0;
 }}
 
 [data-testid="stSidebar"] * {{
@@ -70,14 +66,12 @@ html, body, [class*="css"] {{
     background: #e0e0e0 !important;
 }}
 
-/* CHAT */
 .stChatMessage {{
     background: rgba(0,0,0,0.6) !important;
     border-radius: 14px !important;
     padding: 12px !important;
 }}
 
-/* INPUT */
 .stChatInput {{
     max-width: 600px;
     margin: auto;
@@ -90,7 +84,6 @@ html, body, [class*="css"] {{
     color: #000 !important;
 }}
 
-/* HOME CARD */
 .home-card {{
     width: 420px;
     height: 240px;
@@ -99,12 +92,6 @@ html, body, [class*="css"] {{
     background-size: cover;
     box-shadow: 0 30px 80px rgba(0,0,0,0.8);
     border: 1px solid rgba(255,255,255,0.1);
-    transition: all 0.4s ease;
-}}
-
-.home-card:hover {{
-    transform: scale(1.03);
-    box-shadow: 0 40px 100px rgba(0,0,0,0.9);
 }}
 
 .home-container {{
@@ -185,7 +172,7 @@ def generate_title(user, bot):
         res = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": "Crea titolo breve (max 5 parole) basato su domanda e risposta."},
+                {"role": "system", "content": "Crea un titolo breve (max 5 parole) basato su domanda e risposta."},
                 {"role": "user", "content": f"{user} {bot}"}
             ],
             max_tokens=15
@@ -204,35 +191,47 @@ with st.sidebar:
     st.markdown("---")
 
     for i, c in enumerate(st.session_state.chats):
-        col1, col2 = st.columns([0.8, 0.2])
+
+        col1, col2 = st.columns([0.85, 0.15])
 
         with col1:
-            if st.button(c["title"], key=f"chat_{i}"):
+            if st.button(c["title"], key=f"chat_{i}", use_container_width=True):
                 st.session_state.messages = c["messages"]
                 st.session_state.chat_id = c["id"]
                 st.rerun()
 
         with col2:
-            if st.button("✕", key=f"del_{i}"):
-                st.session_state.chats.pop(i)
-                new_chat()
-                save_chats()
-                st.rerun()
+            with st.popover("⋯", key=f"menu_{i}"):
 
-# ================= HOME / CHAT =================
+                new_name = st.text_input(
+                    "Rinomina",
+                    value=c["title"],
+                    key=f"rename_{i}"
+                )
+
+                if st.button("Salva", key=f"save_{i}"):
+                    st.session_state.chats[i]["title"] = new_name
+                    save_chats()
+                    st.rerun()
+
+                if st.button("Elimina", key=f"delete_{i}"):
+                    st.session_state.chats.pop(i)
+                    new_chat()
+                    save_chats()
+                    st.rerun()
+
+# ================= HOME =================
 if not st.session_state.messages:
 
     st.markdown(f"""
     <div class="home-container">
-
         <div class="home-card"></div>
-
-        <h2 class="home-title">CHIEDI AL LOCO...</h2>
+        <h2 class="home-title">CHIEDI AL LOCO</h2>
         <p class="home-sub">Orgoglio. Identità. Savoia.</p>
-
     </div>
     """, unsafe_allow_html=True)
 
+# ================= CHAT =================
 else:
     for m in st.session_state.messages:
         with st.chat_message(m["role"]):
