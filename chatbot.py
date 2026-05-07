@@ -26,17 +26,24 @@ html, body, [class*="css"] {{
     background-attachment: fixed;
 }}
 
-/* Header - FIX: COPRE TUTTO (100vw) E Z-INDEX MASSIMO */
+/* Header - COMPLETAMENTE BIANCO E SOTTO LA SIDEBAR */
 .header {{
-    position: fixed; top: 0; left: 0; width: 100vw; height: 70px;
-    background: rgba(0,0,0,0.98);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 1000000 !important; border-bottom: 1px solid rgba(255,255,255,0.2);
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 70px;
+    background: #FFFFFF !important; /* Bianco puro */
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    z-index: 99; /* Z-index più basso della sidebar */
+    border-bottom: 1px solid #dddddd;
     padding-left: 20px;
 }}
 
 .header h1 {{
-    color: #FFFFFF !important;
+    color: #000000 !important; /* Scritta nera */
     font-size: 22px;
     letter-spacing: 3px;
     margin: 0;
@@ -45,13 +52,13 @@ html, body, [class*="css"] {{
 
 .block-container {{ padding-top: 100px; }}
 
-/* Sidebar - FIX SPAZIO NERO E IMMAGINE NON CLICCABILE */
+/* Sidebar - SOPRA L'HEADER */
 [data-testid="stSidebar"] {{ 
     background: #fdfdfd !important; 
-    z-index: 999999 !important; 
+    z-index: 1000 !important; /* Più alto dell'header */
 }}
 
-/* Rimuove lo spazio vuoto in alto nella sidebar e il tasto chiudi */
+/* Rimuove lo spazio vuoto in alto e il tasto chiudi */
 [data-testid="stSidebarUserContent"] {{
     padding-top: 1rem !important;
 }}
@@ -59,7 +66,7 @@ html, body, [class*="css"] {{
     display: none !important;
 }}
 
-/* Rende l'immagine della sidebar non cliccabile */
+/* Immagine sidebar non cliccabile */
 [data-testid="stSidebar"] img {{
     pointer-events: none;
 }}
@@ -73,7 +80,7 @@ html, body, [class*="css"] {{
 }}
 [data-testid="stSidebar"] button:hover {{ background: #f0f0f0 !important; }}
 
-/* RIMPICCIOLISCE IL BOTTONE DI APERTURA DEL POPOVER */
+/* POPOVER */
 .stPopover > button {{
     width: 25px !important;
     height: 25px !important;
@@ -85,8 +92,6 @@ html, body, [class*="css"] {{
     justify-content: center !important;
     margin-top: 5px !important;
 }}
-
-/* Rimpicciolisce il quadrato del Popover (il corpo interno) */
 [data-testid="stPopoverBody"] {{
     width: 180px !important;
     min-width: 180px !important;
@@ -100,7 +105,6 @@ html, body, [class*="css"] {{
     padding: 15px !important;
     margin-bottom: 10px;
 }}
-
 .stChatMessage div, .stChatMessage p, .stChatMessage span {{
     color: #FFFFFF !important;
     font-size: 16px !important;
@@ -112,7 +116,6 @@ html, body, [class*="css"] {{
     background-color: rgba(0,0,0,0.5) !important;
     padding: 10px !important;
 }}
-
 .stChatInput textarea {{
     background-color: #FFFFFF !important;
     color: #000000 !important;
@@ -120,7 +123,7 @@ html, body, [class*="css"] {{
     padding-left: 35px !important; 
 }}
 
-/* Home Card & Title */
+/* Home Card */
 .home-container {{
     display:flex; flex-direction:column; align-items:center;
     justify-content:center; height:60vh; text-align:center;
@@ -195,7 +198,6 @@ def generate_title(user, bot):
 
 # ================= SIDEBAR =================
 with st.sidebar:
-    # Ridimensionata e click disabilitato via CSS sopra
     c1, c2, c3 = st.columns([0.05, 0.9, 0.05])
     with c2:
         st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
