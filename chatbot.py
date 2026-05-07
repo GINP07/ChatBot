@@ -37,7 +37,7 @@ html, body, [class*="css"] {{
     display: flex; 
     align-items: center; 
     justify-content: center;
-    z-index: 999999 !important; 
+    z-index: 99999 !important; 
     border-bottom: 2px solid #eeeeee;
 }}
 
@@ -53,7 +53,7 @@ html, body, [class*="css"] {{
     display: none !important;
 }}
 
-/* Padding per il contenuto principale per non finire sotto l'header */
+/* Padding per il contenuto principale */
 .block-container {{ 
     padding-top: 100px !important; 
     padding-bottom: 150px !important; 
@@ -72,16 +72,17 @@ html, body, [class*="css"] {{
     cursor: default !important;
 }}
 
-/* TASTO APRI/CHIUDI SIDEBAR */
+/* TASTO APRI/CHIUDI SIDEBAR - FORZATO SOPRA L'HEADER */
 [data-testid="stSidebarCollapseButton"] {{
-    display: block !important;
+    display: flex !important;
     position: fixed !important;
     top: 15px !important;
     left: 15px !important;
-    z-index: 1000001 !important;
-    color: #000000 !important;
+    z-index: 10000001 !important; /* Più alto dell'header */
     background-color: #f0f0f0 !important;
+    border: 1px solid #ddd !important;
     border-radius: 8px !important;
+    color: #000000 !important;
 }}
 
 [data-testid="stSidebar"] * {{ color: #000000 !important; }}
@@ -106,10 +107,10 @@ html, body, [class*="css"] {{
     font-size: 16px !important;
 }}
 
-/* INPUT CHAT - AGGIUNTO PADDING E STILE */
+/* INPUT CHAT */
 .stChatInputContainer {{
     background-color: rgba(0,0,0,0.8) !important;
-    padding: 20px 40px !important; /* Più spazio ai lati e sopra/sotto */
+    padding: 20px 40px !important;
     border-top: 1px solid rgba(255,255,255,0.1);
 }}
 
@@ -117,7 +118,7 @@ html, body, [class*="css"] {{
     background-color: #FFFFFF !important;
     color: #000000 !important;
     border-radius: 25px !important;
-    padding: 15px 25px !important; /* Padding interno al box di scrittura */
+    padding: 15px 25px !important;
     line-height: 1.5 !important;
 }}
 
@@ -204,7 +205,6 @@ with st.sidebar:
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Rimosso il "+" dal testo del bottone
     if st.button("NUOVA CHAT", use_container_width=True):
         new_chat()
         st.rerun()
