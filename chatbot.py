@@ -235,7 +235,7 @@ else:
             st.markdown(m["content"])
 
 # ================= INPUT & RESPONSE =================
-if prompt := st.chat_input("Scrivi al Loco..."):
+if prompt := st.chat_input("Chiedi al Loco..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.rerun()
 
