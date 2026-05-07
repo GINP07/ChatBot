@@ -26,7 +26,7 @@ html, body, [class*="css"] {{
     background-attachment: fixed;
 }}
 
-/* Header - FORZATO BIANCO, SCRITTA NERA */
+/* Header - FISSO E SEMPRE VISIBILE */
 .header {{
     position: fixed; 
     top: 0; 
@@ -37,11 +37,10 @@ html, body, [class*="css"] {{
     display: flex; 
     align-items: center; 
     justify-content: center;
-    z-index: 9999 !important; /* Molto alto per non sparire */
+    z-index: 999999 !important; 
     border-bottom: 2px solid #eeeeee;
 }}
 
-/* Rimuove l'icona link (ancora) dai titoli e assicura il nero */
 .header h1 {{
     color: #000000 !important; 
     font-size: 22px !important;
@@ -54,12 +53,16 @@ html, body, [class*="css"] {{
     display: none !important;
 }}
 
-.block-container {{ padding-top: 100px; }}
+/* Padding per il contenuto principale per non finire sotto l'header */
+.block-container {{ 
+    padding-top: 100px !important; 
+    padding-bottom: 150px !important; 
+}}
 
 /* Sidebar */
 [data-testid="stSidebar"] {{ 
     background: #fdfdfd !important; 
-    z-index: 10000 !important; 
+    z-index: 1000000 !important; 
 }}
 
 /* BLOCCA APERTURA FOTO SIDEBAR */
@@ -74,8 +77,8 @@ html, body, [class*="css"] {{
     display: block !important;
     position: fixed !important;
     top: 15px !important;
-    left: 10px !important;
-    z-index: 10001 !important;
+    left: 15px !important;
+    z-index: 1000001 !important;
     color: #000000 !important;
     background-color: #f0f0f0 !important;
     border-radius: 8px !important;
@@ -103,21 +106,25 @@ html, body, [class*="css"] {{
     font-size: 16px !important;
 }}
 
-/* Input Chat */
+/* INPUT CHAT - AGGIUNTO PADDING E STILE */
 .stChatInputContainer {{
-    background-color: rgba(0,0,0,0.5) !important;
-    padding: 10px !important;
+    background-color: rgba(0,0,0,0.8) !important;
+    padding: 20px 40px !important; /* Più spazio ai lati e sopra/sotto */
+    border-top: 1px solid rgba(255,255,255,0.1);
 }}
+
 .stChatInput textarea {{
     background-color: #FFFFFF !important;
     color: #000000 !important;
-    border-radius: 20px !important;
+    border-radius: 25px !important;
+    padding: 15px 25px !important; /* Padding interno al box di scrittura */
+    line-height: 1.5 !important;
 }}
 
 /* Home Card */
 .home-container {{
     display:flex; flex-direction:column; align-items:center;
-    justify-content:center; height:60vh; text-align:center;
+    justify-content:center; height:55vh; text-align:center;
 }}
 .home-card {{
     width: 380px; height: 210px; border-radius: 20px;
@@ -191,14 +198,14 @@ def generate_title(user, bot):
 with st.sidebar:
     c1, c2, c3 = st.columns([0.05, 0.9, 0.05])
     with c2:
-        # Aggiunta classe per bloccare lo zoom anche via HTML
         st.markdown('<div class="no-zoom">', unsafe_allow_html=True)
         st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    if st.button("+ NUOVA CHAT", use_container_width=True):
+    # Rimosso il "+" dal testo del bottone
+    if st.button("NUOVA CHAT", use_container_width=True):
         new_chat()
         st.rerun()
 
