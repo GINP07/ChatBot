@@ -10,6 +10,7 @@ st.set_page_config(
 )
 
 BG = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg"
+LOGO_PICCOLO = "https://i.ibb.co/NgwLt8cT/logo-savoia.png"
 CHAT_FILE = "chat_history.json"
 
 # ================= CSS PREMIUM =================
@@ -26,24 +27,35 @@ html, body, [class*="css"] {{
     background-attachment: fixed;
 }}
 
-/* Padding ricalibrato senza header fisso */
+/* Header rimosso per non sovrastare la sidebar */
+
+/* Padding per il contenuto principale */
 .block-container {{ 
-    padding-top: 30px !important; 
+    padding-top: 50px !important; 
     padding-bottom: 150px !important; 
 }}
 
 /* Sidebar */
 [data-testid="stSidebar"] {{ 
     background: #fdfdfd !important; 
-    z-index: 1000000 !important; 
+    z-index: 1000 !important; 
 }}
 
-/* TASTO SIDEBAR SEMPRE VISIBILE */
-[data-testid="stSidebarCollapseButton"] {{
-    background-color: rgba(255,255,255,0.2) !important;
-    border-radius: 8px !important;
-    color: white !important;
+/* BLOCCA APERTURA FOTO SIDEBAR */
+[data-testid="stSidebar"] [data-testid="stImage"] img {{
+    pointer-events: none !important;
+    user-select: none !important;
+    cursor: default !important;
 }}
+
+[data-testid="stSidebar"] * {{ color: #000000 !important; }}
+[data-testid="stSidebar"] button {{
+    background: transparent !important;
+    border: 1px solid #eee !important;
+    text-align: left !important;
+    margin-bottom: 5px;
+}}
+[data-testid="stSidebar"] button:hover {{ background: #f0f0f0 !important; }}
 
 /* MESSAGGI CHAT */
 .stChatMessage {{
@@ -62,6 +74,7 @@ html, body, [class*="css"] {{
 .stChatInputContainer {{
     background-color: rgba(0,0,0,0.8) !important;
     padding: 20px 40px !important;
+    border-top: 1px solid rgba(255,255,255,0.1);
 }}
 
 .stChatInput textarea {{
@@ -69,45 +82,55 @@ html, body, [class*="css"] {{
     color: #000000 !important;
     border-radius: 25px !important;
     padding: 15px 25px !important;
+    line-height: 1.5 !important;
 }}
 
-/* Home Card & Layout Centrale */
+/* Home Card & Centratura */
 .home-container {{
-    display:flex; flex-direction:column; align-items:center;
-    justify-content:center; height:70vh; text-align:center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 65vh;
+    text-align: center;
 }}
 
-/* Logo sopra il titolo */
-.main-logo {{
-    height: 80px;
-    margin-bottom: 20px;
-    filter: drop-shadow(0px 0px 10px rgba(255,255,255,0.3));
+.logo-home-mini {{
+    width: 60px;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
 }}
 
 .home-card {{
-    width: 420px; height: 230px; border-radius: 20px;
-    background-image: url('{BG}'); background-size: cover;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-    border: 2px solid rgba(255,255,255,0.1);
-    margin-bottom: 30px;
+    width: 380px; 
+    height: 210px; 
+    border-radius: 20px;
+    background-image: url('{BG}'); 
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    border: 2px solid rgba(255,255,255,0.2);
 }}
 
 .home-title {{ 
+    margin-top: 25px; 
     color: #FFFFFF !important; 
-    letter-spacing: 5px; 
-    font-weight: 900; 
-    font-size: 45px !important;
+    letter-spacing: 4px; 
+    font-weight: 800; 
     text-transform: uppercase;
-    margin: 0px !important;
+    font-size: 2.5rem;
 }}
 
 .home-sub {{ 
-    color: #FF0000; /* Rosso Savoia */
+    color: #1a1a1a !important; /* Nero scuro */
     font-style: italic; 
-    font-weight: 600;
-    font-size: 18px;
-    letter-spacing: 1px;
+    font-weight: 900;
+    font-size: 1.1rem;
+    background: rgba(255,255,255,0.4); /* Leggera sfumatura per leggibilità su sfondo scuro */
+    padding: 2px 10px;
+    border-radius: 5px;
 }}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -158,7 +181,10 @@ def generate_title(user, bot):
 
 # ================= SIDEBAR =================
 with st.sidebar:
-    st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
+    c1, c2, c3 = st.columns([0.05, 0.9, 0.05])
+    with c2:
+        st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
+    
     st.markdown("<br>", unsafe_allow_html=True)
     
     if st.button("NUOVA CHAT", use_container_width=True):
@@ -191,18 +217,17 @@ with st.sidebar:
 
 # ================= MAIN AREA =================
 if not st.session_state.messages:
-    # SPAZIO CENTRALE GRANDE (Invece dell'header)
     st.markdown(f"""
     <div class="home-container">
-        <img src="https://i.ibb.co/NgwLt8cT/logo-savoia.png" class="main-logo">
-        <h1 class="home-title">EL LOCO MUÑOZ</h1>
-        <p class="home-sub">Oltre la categoria, solo per la maglia.</p>
+        <img src="{LOGO_PICCOLO}" class="logo-home-mini">
         <div class="home-card"></div>
+        <h1 class="home-title">EL LOCO MUÑOZ</h1>
+        <p class="home-sub">Sempre e ovunque, per la maglia.</p>
     </div>
     """, unsafe_allow_html=True)
 else:
-    # Quando la chat inizia, mostriamo un piccolo logo in alto per coerenza
-    st.image("https://i.ibb.co/NgwLt8cT/logo-savoia.png", width=60)
+    # Piccolo logo di richiamo quando la chat è attiva
+    st.image(LOGO_PICCOLO, width=50)
     for m in st.session_state.messages:
         with st.chat_message(m["role"]):
             st.markdown(m["content"])
@@ -215,13 +240,13 @@ if prompt := st.chat_input("Scrivi al Loco..."):
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
     if client:
         with st.chat_message("assistant"):
-            sys_msg = "Sei El Loco Muñoz, ultras del Savoia 1908. Sei verace, fiero, parli in modo diretto e passionale della tua squadra e della tua città (Torre Annunziata)."
+            sys_msg = "Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso e diretto."
             try:
                 full_msgs = [{"role": "system", "content": sys_msg}] + st.session_state.messages
                 comp = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=full_msgs,
-                    temperature=0.8
+                    temperature=0.7
                 )
                 res = comp.choices[0].message.content
                 st.markdown(res)
