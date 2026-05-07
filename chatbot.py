@@ -57,7 +57,7 @@ html, body, [class*="css"] {{
 
 /* RIMPICCIOLISCE IL BOTTONE DI APERTURA DEL POPOVER */
 .stPopover > button {{
-    width: 15px !important;
+    width: 25px !important;
     height: 25px !important;
     min-width: 25px !important;
     min-height: 25px !important;
