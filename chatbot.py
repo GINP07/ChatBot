@@ -206,4 +206,20 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
                     messages=full_msgs,
                     temperature=0.7
                 )
-                res = comp.choices
+                res = comp.choices[0].message.content
+                st.markdown(res)
+                st.session_state.messages.append({"role": "assistant", "content": res})
+
+                if st.session_state.chat_id is None:
+                    cid = str(uuid.uuid4())
+                    title = generate_title(prompt, res)
+                    st.session_state.chats.insert(0, {"id": cid, "title": title, "messages": list(st.session_state.messages)})
+                    st.session_state.chat_id = cid
+                else:
+                    for c in st.session_state.chats:
+                        if c["id"] == st.session_state.chat_id:
+                            c["messages"] = list(st.session_state.messages)
+                save_chats()
+                st.rerun()
+            except Exception as e:
+                st.error(f"Errore: {e}")
