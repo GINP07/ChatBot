@@ -40,7 +40,7 @@ html, body, [class*="css"] {{
 
 .block-container {{ padding-top: 100px; }}
 
-/* Sidebar - Contrasto Nero su Bianco */
+/* Sidebar */
 [data-testid="stSidebar"] {{ background: #fdfdfd !important; }}
 [data-testid="stSidebar"] * {{ color: #000000 !important; }}
 [data-testid="stSidebar"] button {{
@@ -51,7 +51,7 @@ html, body, [class*="css"] {{
 }}
 [data-testid="stSidebar"] button:hover {{ background: #f0f0f0 !important; }}
 
-/* MESSAGGI CHAT - TESTO BIANCO */
+/* MESSAGGI CHAT */
 .stChatMessage {{
     background: rgba(255,255,255,0.08) !important;
     border: 1px solid rgba(255,255,255,0.15) !important;
@@ -78,7 +78,7 @@ html, body, [class*="css"] {{
     border-radius: 20px !important;
 }}
 
-/* Home Card */
+/* Home Card & Title */
 .home-container {{
     display:flex; flex-direction:column; align-items:center;
     justify-content:center; height:60vh; text-align:center;
@@ -89,7 +89,13 @@ html, body, [class*="css"] {{
     box-shadow: 0 20px 60px rgba(0,0,0,0.7);
     border: 2px solid rgba(255,255,255,0.2);
 }}
-.home-title {{ margin-top:30px; color:white; letter-spacing:4px; font-weight: 800; }}
+.home-title {{ 
+    margin-top:30px; 
+    color: #FFFFFF !important; /* TITOLO BIANCO NELLA HOME */
+    letter-spacing:4px; 
+    font-weight: 800; 
+    text-transform: uppercase;
+}}
 .home-sub {{ color:#cccccc; font-style: italic; }}
 
 </style>
@@ -162,7 +168,6 @@ with st.sidebar:
                 st.session_state.chat_id = c["id"]
                 st.rerun()
         with col2:
-            # Rimosso il testo personalizzato dal popover, lasciato vuoto per icona base
             with st.popover("", key=f"menu_{i}"):
                 new_n = st.text_input("Rinomina", value=c["title"], key=f"ren_input_{i}")
                 if st.button("Salva", key=f"save_{i}", use_container_width=True):
@@ -191,7 +196,7 @@ else:
             st.markdown(m["content"])
 
 # ================= INPUT & RESPONSE =================
-if prompt := st.chat_input("Chiedi al Loco..."):
+if prompt := st.chat_input("Scrivi al Loco..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.rerun()
 
