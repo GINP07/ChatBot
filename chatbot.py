@@ -26,53 +26,23 @@ html, body, [class*="css"] {{
     background-attachment: fixed;
 }}
 
-/* Header - FORZATO SEMPRE IN PRIMO PIANO */
-.header {{
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 70px;
-    background-color: #FFFFFF !important; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    /* Z-INDEX MASSIMO PER NON FARLO SCOMPARIRE */
-    z-index: 999999999 !important; 
-    border-bottom: 2px solid #eeeeee;
-}}
-
-.header h1 {{
-    color: #000000 !important; 
-    font-size: 22px !important;
-    letter-spacing: 3px;
-    margin: 0 !important;
-    font-weight: 900;
-    text-transform: uppercase;
-}}
-
-/* Padding per evitare che la chat finisca sotto l'header */
+/* Padding ricalibrato senza header fisso */
 .block-container {{ 
-    padding-top: 100px !important; 
+    padding-top: 30px !important; 
     padding-bottom: 150px !important; 
 }}
 
 /* Sidebar */
 [data-testid="stSidebar"] {{ 
     background: #fdfdfd !important; 
-    z-index: 1000000000 !important; 
+    z-index: 1000000 !important; 
 }}
 
-/* TASTO APRI/CHIUDI SIDEBAR - STILIZZATO */
+/* TASTO SIDEBAR SEMPRE VISIBILE */
 [data-testid="stSidebarCollapseButton"] {{
-    display: flex !important;
-    position: fixed !important;
-    top: 15px !important;
-    left: 15px !important;
-    z-index: 1000000001 !important;
-    background-color: #f0f0f0 !important;
+    background-color: rgba(255,255,255,0.2) !important;
     border-radius: 8px !important;
-    color: #000000 !important;
+    color: white !important;
 }}
 
 /* MESSAGGI CHAT */
@@ -92,41 +62,53 @@ html, body, [class*="css"] {{
 .stChatInputContainer {{
     background-color: rgba(0,0,0,0.8) !important;
     padding: 20px 40px !important;
-    border-top: 1px solid rgba(255,255,255,0.1);
 }}
 
 .stChatInput textarea {{
     background-color: #FFFFFF !important;
     color: #000000 !important;
     border-radius: 25px !important;
+    padding: 15px 25px !important;
 }}
 
-/* Home Card */
+/* Home Card & Layout Centrale */
 .home-container {{
     display:flex; flex-direction:column; align-items:center;
-    justify-content:center; height:55vh; text-align:center;
+    justify-content:center; height:70vh; text-align:center;
 }}
+
+/* Logo sopra il titolo */
+.main-logo {{
+    height: 80px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0px 0px 10px rgba(255,255,255,0.3));
+}}
+
 .home-card {{
-    width: 380px; height: 210px; border-radius: 20px;
+    width: 420px; height: 230px; border-radius: 20px;
     background-image: url('{BG}'); background-size: cover;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
-    border: 2px solid rgba(255,255,255,0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    border: 2px solid rgba(255,255,255,0.1);
+    margin-bottom: 30px;
 }}
+
 .home-title {{ 
-    margin-top:30px; 
     color: #FFFFFF !important; 
-    letter-spacing:4px; 
-    font-weight: 800; 
+    letter-spacing: 5px; 
+    font-weight: 900; 
+    font-size: 45px !important;
     text-transform: uppercase;
+    margin: 0px !important;
 }}
-.home-sub {{ color:#cccccc; font-style: italic; }}
 
+.home-sub {{ 
+    color: #FF0000; /* Rosso Savoia */
+    font-style: italic; 
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 1px;
+}}
 </style>
-
-<div class="header">
-    <img src="https://i.ibb.co/NgwLt8cT/logo-savoia.png" style="height: 45px; width: auto; margin-right: 20px;">
-    <h1>EL LOCO MUÑOZ AI</h1>
-</div>
 """, unsafe_allow_html=True)
 
 # ================= STORAGE =================
@@ -166,7 +148,7 @@ def generate_title(user, bot):
         res = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": "Crea un titolo di MAX 4 parole per questa conversazione analizzando utente e bot. No emoji."},
+                {"role": "system", "content": "Crea un titolo di MAX 4 parole per questa conversazione. No emoji."},
                 {"role": "user", "content": f"U: {user}\nA: {bot}"}
             ],
             max_tokens=10
@@ -209,14 +191,18 @@ with st.sidebar:
 
 # ================= MAIN AREA =================
 if not st.session_state.messages:
+    # SPAZIO CENTRALE GRANDE (Invece dell'header)
     st.markdown(f"""
     <div class="home-container">
-        <div class="home-card"></div>
+        <img src="https://i.ibb.co/NgwLt8cT/logo-savoia.png" class="main-logo">
         <h1 class="home-title">EL LOCO MUÑOZ</h1>
-        <p class="home-sub">Sempre e ovunque, per la maglia.</p>
+        <p class="home-sub">Oltre la categoria, solo per la maglia.</p>
+        <div class="home-card"></div>
     </div>
     """, unsafe_allow_html=True)
 else:
+    # Quando la chat inizia, mostriamo un piccolo logo in alto per coerenza
+    st.image("https://i.ibb.co/NgwLt8cT/logo-savoia.png", width=60)
     for m in st.session_state.messages:
         with st.chat_message(m["role"]):
             st.markdown(m["content"])
@@ -229,13 +215,13 @@ if prompt := st.chat_input("Scrivi al Loco..."):
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
     if client:
         with st.chat_message("assistant"):
-            sys_msg = "Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso e diretto."
+            sys_msg = "Sei El Loco Muñoz, ultras del Savoia 1908. Sei verace, fiero, parli in modo diretto e passionale della tua squadra e della tua città (Torre Annunziata)."
             try:
                 full_msgs = [{"role": "system", "content": sys_msg}] + st.session_state.messages
                 comp = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=full_msgs,
-                    temperature=0.7
+                    temperature=0.8
                 )
                 res = comp.choices[0].message.content
                 st.markdown(res)
