@@ -37,16 +37,21 @@ html, body, [class*="css"] {{
     display: flex; 
     align-items: center; 
     justify-content: center;
-    z-index: 1000001 !important; /* Z-index massimo per sovrastare la sidebar */
-    border_bottom: 1px solid #dddddd;
+    z-index: 1000 !important; 
+    border-bottom: 1px solid #dddddd;
 }}
 
+/* Rimuove l'icona link (ancora) dai titoli */
 .header h1 {{
     color: #000000 !important; 
     font-size: 22px;
     letter-spacing: 3px;
     margin: 0;
     font-weight: 900;
+    border: none !important;
+}}
+.header h1 a {{
+    display: none !important;
 }}
 
 .block-container {{ padding-top: 100px; }}
@@ -54,21 +59,26 @@ html, body, [class*="css"] {{
 /* Sidebar */
 [data-testid="stSidebar"] {{ 
     background: #fdfdfd !important; 
-    z-index: 1000000 !important; 
+    z-index: 1100 !important; 
 }}
 
-/* FIX: Toglie lo zoom e il click dall'immagine della sidebar */
-[data-testid="stSidebar"] [data-testid="stImage"] img {{
+/* BLOCCA APERTURA FOTO SIDEBAR */
+[data-testid="stSidebar"] [data-testid="stImage"] {{
     pointer-events: none !important;
-    cursor: default !important;
+    user-select: none !important;
+    -webkit-user-drag: none !important;
 }}
 
-/* Rimuove lo spazio vuoto in alto e il tasto chiudi */
-[data-testid="stSidebarUserContent"] {{
-    padding-top: 1rem !important;
-}}
+/* RE-INSERISCE E POSIZIONA IL TASTO APRI/CHIUDI SIDEBAR */
 [data-testid="stSidebarCollapseButton"] {{
-    display: none !important;
+    display: block !important;
+    position: fixed !important;
+    top: 15px !important;
+    left: 10px !important;
+    z-index: 2000 !important;
+    color: #000000 !important;
+    background-color: #f0f0f0 !important;
+    border-radius: 50% !important;
 }}
 
 [data-testid="stSidebar"] * {{ color: #000000 !important; }}
@@ -91,10 +101,6 @@ html, body, [class*="css"] {{
     justify-content: center !important;
     margin-top: 5px !important;
 }}
-[data-testid="stPopoverBody"] {{
-    width: 180px !important;
-    min-width: 180px !important;
-}}
 
 /* MESSAGGI CHAT */
 .stChatMessage {{
@@ -107,7 +113,6 @@ html, body, [class*="css"] {{
 .stChatMessage div, .stChatMessage p, .stChatMessage span {{
     color: #FFFFFF !important;
     font-size: 16px !important;
-    line-height: 1.6;
 }}
 
 /* Input Chat */
@@ -119,7 +124,6 @@ html, body, [class*="css"] {{
     background-color: #FFFFFF !important;
     color: #000000 !important;
     border-radius: 20px !important;
-    padding-left: 35px !important; 
 }}
 
 /* Home Card */
