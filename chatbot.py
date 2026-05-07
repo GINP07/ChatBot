@@ -190,4 +190,36 @@ if prompt := st.chat_input("Scrivi al Loco..."):
     st.rerun()
 
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
-    if not
+    if not client:
+        st.error("API Key mancante nei Secrets!")
+    else:
+        with st.chat_message("assistant"):
+            sys_msg = "Sei El Loco Muñoz, ultras carismatico del Savoia 1908. Rispondi con orgoglio, fiero e diretto."
+            try:
+                full_msgs = [{"role": "system", "content": sys_msg}] + st.session_state.messages
+                comp = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=full_msgs,
+                    temperature=0.7
+                )
+                res = comp.choices[0].message.content
+                st.markdown(res)
+                st.session_state.messages.append({"role": "assistant", "content": res})
+
+                # Gestione salvataggio e titolo intelligente
+                if st.session_state.chat_id is None:
+                    cid = str(uuid.uuid4())
+                    title = generate_title(prompt, res)
+                    st.session_state.chats.insert(0, {
+                        "id": cid, "title": title, "messages": list(st.session_state.messages)
+                    })
+                    st.session_state.chat_id = cid
+                else:
+                    for c in st.session_state.chats:
+                        if c["id"] == st.session_state.chat_id:
+                            c["messages"] = list(st.session_state.messages)
+                
+                save_chats()
+                st.rerun()
+            except Exception as e:
+                st.error(f"Errore: {e}")
