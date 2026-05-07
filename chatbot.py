@@ -2,7 +2,7 @@ import streamlit as st
 from groq import Groq
 import json, os, time, uuid
 
-# ================= CONFIG =================
+# ================= CONFIG (CON LOGO BROWSER) =================
 st.set_page_config(
     page_title="EL LOCO MUÑOZ AI", 
     page_icon="https://i.ibb.co/NgwLt8cT/logo-savoia.png", 
@@ -12,7 +12,7 @@ st.set_page_config(
 BG = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg"
 CHAT_FILE = "chat_history.json"
 
-# ================= CSS PREMIUM (FIX SPAZIO NERO) =================
+# ================= CSS PREMIUM =================
 st.markdown(f"""
 <style>
 /* Font e Sfondo */
@@ -26,19 +26,13 @@ html, body, [class*="css"] {{
     background-attachment: fixed;
 }}
 
-/* Header - FIX: Portato a 100vw per coprire tutto e z-index massimo */
+/* Header - FIX: COPRE TUTTO (100vw) E Z-INDEX MASSIMO */
 .header {{
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100vw; 
-    height: 70px;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 70px;
     background: rgba(0,0,0,0.98);
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    z-index: 999999; /* Valore altissimo per stare sopra la sidebar */
-    border_bottom: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000000 !important; border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-left: 20px;
 }}
 
 .header h1 {{
@@ -49,24 +43,27 @@ html, body, [class*="css"] {{
     font-weight: 900;
 }}
 
-/* FIX SPAZIO NERO SIDEBAR: Rimuove i margini superiori predefiniti */
-[data-testid="stSidebar"] {{ 
-    background: #fdfdfd !important; 
-    z-index: 99999;
-}}
-
-[data-testid="stSidebarUserContent"] {{
-    padding-top: 1rem !important; /* Riduce lo spazio vuoto in alto nella sidebar */
-}}
-
-/* Rimuove il bottone predefinito di chiusura sidebar che crea spazio */
-[data-testid="stSidebarCollapseButton"] {{
-    display: none !important;
-}
-
 .block-container {{ padding-top: 100px; }}
 
-/* Sidebar testo e bottoni */
+/* Sidebar - FIX SPAZIO NERO E IMMAGINE NON CLICCABILE */
+[data-testid="stSidebar"] {{ 
+    background: #fdfdfd !important; 
+    z-index: 999999 !important; 
+}}
+
+/* Rimuove lo spazio vuoto in alto nella sidebar e il tasto chiudi */
+[data-testid="stSidebarUserContent"] {{
+    padding-top: 1rem !important;
+}}
+[data-testid="stSidebarCollapseButton"] {{
+    display: none !important;
+}}
+
+/* Rende l'immagine della sidebar non cliccabile */
+[data-testid="stSidebar"] img {{
+    pointer-events: none;
+}}
+
 [data-testid="stSidebar"] * {{ color: #000000 !important; }}
 [data-testid="stSidebar"] button {{
     background: transparent !important;
@@ -76,35 +73,54 @@ html, body, [class*="css"] {{
 }}
 [data-testid="stSidebar"] button:hover {{ background: #f0f0f0 !important; }}
 
-/* Popover Mini */
+/* RIMPICCIOLISCE IL BOTTONE DI APERTURA DEL POPOVER */
 .stPopover > button {{
     width: 25px !important;
     height: 25px !important;
     min-width: 25px !important;
+    min-height: 25px !important;
     padding: 0px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    margin-top: 5px !important;
 }}
 
-/* Messaggi Chat */
+/* Rimpicciolisce il quadrato del Popover (il corpo interno) */
+[data-testid="stPopoverBody"] {{
+    width: 180px !important;
+    min-width: 180px !important;
+}}
+
+/* MESSAGGI CHAT */
 .stChatMessage {{
     background: rgba(255,255,255,0.08) !important;
     border: 1px solid rgba(255,255,255,0.15) !important;
     border-radius: 15px !important;
+    padding: 15px !important;
     margin-bottom: 10px;
 }}
 
-.stChatMessage div, .stChatMessage p {{
+.stChatMessage div, .stChatMessage p, .stChatMessage span {{
     color: #FFFFFF !important;
+    font-size: 16px !important;
+    line-height: 1.6;
 }}
 
 /* Input Chat */
 .stChatInputContainer {{
     background-color: rgba(0,0,0,0.5) !important;
+    padding: 10px !important;
 }}
 
-/* Home Card */
+.stChatInput textarea {{
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-radius: 20px !important;
+    padding-left: 35px !important; 
+}}
+
+/* Home Card & Title */
 .home-container {{
     display:flex; flex-direction:column; align-items:center;
     justify-content:center; height:60vh; text-align:center;
@@ -113,8 +129,17 @@ html, body, [class*="css"] {{
     width: 380px; height: 210px; border-radius: 20px;
     background-image: url('{BG}'); background-size: cover;
     box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    border: 2px solid rgba(255,255,255,0.2);
 }}
-.home-title {{ margin-top:30px; color: #FFFFFF !important; font-weight: 800; }}
+.home-title {{ 
+    margin-top:30px; 
+    color: #FFFFFF !important; 
+    letter-spacing:4px; 
+    font-weight: 800; 
+    text-transform: uppercase;
+}}
+.home-sub {{ color:#cccccc; font-style: italic; }}
+
 </style>
 
 <div class="header">
@@ -123,25 +148,33 @@ html, body, [class*="css"] {{
 </div>
 """, unsafe_allow_html=True)
 
-# ================= STORAGE & SESSION =================
+# ================= STORAGE =================
 def load_chats():
     if os.path.exists(CHAT_FILE):
         try:
-            with open(CHAT_FILE, "r") as f: return json.load(f)
+            with open(CHAT_FILE, "r") as f:
+                return json.load(f)
         except: return []
     return []
 
 def save_chats():
-    with open(CHAT_FILE, "w") as f: json.dump(st.session_state.chats, f)
+    with open(CHAT_FILE, "w") as f:
+        json.dump(st.session_state.chats, f)
 
-if "messages" not in st.session_state: st.session_state.messages = []
-if "chats" not in st.session_state: st.session_state.chats = load_chats()
-if "chat_id" not in st.session_state: st.session_state.chat_id = None
+# ================= SESSION =================
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "chats" not in st.session_state:
+    st.session_state.chats = load_chats()
+if "chat_id" not in st.session_state:
+    st.session_state.chat_id = None
 
+# ================= API =================
 client = None
 if "GROQ_API_KEY" in st.secrets:
     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
+# ================= UTILS =================
 def new_chat():
     st.session_state.messages = []
     st.session_state.chat_id = None
@@ -151,7 +184,10 @@ def generate_title(user, bot):
     try:
         res = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[{"role": "system", "content": "Titolo max 4 parole. No emoji."},{"role": "user", "content": f"U: {user}\nA: {bot}"}],
+            messages=[
+                {"role": "system", "content": "Crea un titolo di MAX 4 parole per questa conversazione analizzando utente e bot. No emoji."},
+                {"role": "user", "content": f"U: {user}\nA: {bot}"}
+            ],
             max_tokens=10
         )
         return res.choices[0].message.content.strip().replace('"', '')
@@ -159,7 +195,7 @@ def generate_title(user, bot):
 
 # ================= SIDEBAR =================
 with st.sidebar:
-    # Ridimensionata e non cliccabile
+    # Ridimensionata e click disabilitato via CSS sopra
     c1, c2, c3 = st.columns([0.05, 0.9, 0.05])
     with c2:
         st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
@@ -187,19 +223,20 @@ with st.sidebar:
                     st.session_state.chats[i]["title"] = new_n
                     save_chats()
                     st.rerun()
+                st.markdown("---")
                 if st.button("Elimina", key=f"del_{i}", use_container_width=True):
                     st.session_state.chats.pop(i)
                     save_chats()
                     new_chat()
                     st.rerun()
 
-# ================= MAIN =================
+# ================= MAIN AREA =================
 if not st.session_state.messages:
     st.markdown(f"""
     <div class="home-container">
         <div class="home-card"></div>
         <h1 class="home-title">EL LOCO MUÑOZ</h1>
-        <p style="color:#ccc; font-style:italic;">Sempre e ovunque, per la maglia.</p>
+        <p class="home-sub">Sempre e ovunque, per la maglia.</p>
     </div>
     """, unsafe_allow_html=True)
 else:
@@ -207,6 +244,7 @@ else:
         with st.chat_message(m["role"]):
             st.markdown(m["content"])
 
+# ================= INPUT & RESPONSE =================
 if prompt := st.chat_input("Scrivi al Loco..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.rerun()
@@ -217,7 +255,11 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
             sys_msg = "Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso e diretto."
             try:
                 full_msgs = [{"role": "system", "content": sys_msg}] + st.session_state.messages
-                comp = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=full_msgs)
+                comp = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=full_msgs,
+                    temperature=0.7
+                )
                 res = comp.choices[0].message.content
                 st.markdown(res)
                 st.session_state.messages.append({"role": "assistant", "content": res})
