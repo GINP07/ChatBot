@@ -130,6 +130,7 @@ html, body, [class*="css"] {{
 
 <div class="header">
     <h1>EL LOCO MUÑOZ AI</h1>
+    <img src="https://i.ibb.co/NgwLt8cT/logo-savoia.png" class="logo-right" style="position: absolute; left: 50px; height: 45px; width: auto; top: 12px;">
 </div>
 """, unsafe_allow_html=True)
 
