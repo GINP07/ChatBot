@@ -15,137 +15,98 @@ CHAT_FILE = "chat_history.json"
 # ================= CSS PREMIUM =================
 st.markdown(f"""
 <style>
-/* Font e Sfondo */
-html, body, [class*="css"] {{
-    font-family: 'Inter', sans-serif;
-}}
-
+/* Sfondo e Font */
 .stApp {{
     background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url("{BG}");
     background-size: cover;
     background-attachment: fixed;
 }}
 
-/* Header - FISSO E SEMPRE VISIBILE */
-.header {{
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
+/* HEADER FISSO - Utilizziamo l'id per forzare Streamlit */
+#custom-header {{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
     height: 70px;
-    background-color: #FFFFFF !important; 
-    display: flex; 
-    align-items: center; 
+    background-color: white !important;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    z-index: 99999 !important; 
-    border-bottom: 2px solid #eeeeee;
+    z-index: 999999;
+    border-bottom: 2px solid #ddd;
 }}
 
-.header h1 {{
-    color: #000000 !important; 
+#custom-header h1 {{
+    color: black !important;
     font-size: 22px !important;
-    letter-spacing: 3px;
-    margin: 0 !important;
     font-weight: 900;
-    text-decoration: none;
-}}
-.header h1 a {{
-    display: none !important;
+    letter-spacing: 3px;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
 }}
 
 /* Padding per il contenuto principale */
-.block-container {{ 
-    padding-top: 100px !important; 
-    padding-bottom: 150px !important; 
+.main .block-container {{
+    padding-top: 100px !important;
 }}
 
-/* Sidebar */
-[data-testid="stSidebar"] {{ 
-    background: #fdfdfd !important; 
-    z-index: 1000000 !important; 
+/* Sidebar - Correzione visibilità */
+[data-testid="stSidebar"] {{
+    background-color: #fdfdfd !important;
+    z-index: 1000000;
 }}
 
-/* BLOCCA APERTURA FOTO SIDEBAR */
-[data-testid="stSidebar"] [data-testid="stImage"] img {{
-    pointer-events: none !important;
-    user-select: none !important;
-    cursor: default !important;
-}}
-
-/* TASTO APRI/CHIUDI SIDEBAR - FORZATO SOPRA L'HEADER */
+/* Pulsante Sidebar - Lo spostiamo leggermente per non sovrapporsi al logo */
 [data-testid="stSidebarCollapseButton"] {{
-    display: flex !important;
-    position: fixed !important;
-    top: 15px !important;
-    left: 15px !important;
-    z-index: 10000001 !important; /* Più alto dell'header */
-    background-color: #f0f0f0 !important;
-    border: 1px solid #ddd !important;
-    border-radius: 8px !important;
-    color: #000000 !important;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1000001;
+    background-color: #eee !important;
+    color: black !important;
+    border-radius: 5px;
 }}
 
-[data-testid="stSidebar"] * {{ color: #000000 !important; }}
-[data-testid="stSidebar"] button {{
-    background: transparent !important;
-    border: 1px solid #eee !important;
-    text-align: left !important;
-    margin-bottom: 5px;
-}}
-[data-testid="stSidebar"] button:hover {{ background: #f0f0f0 !important; }}
-
-/* MESSAGGI CHAT */
+/* Messaggi Chat */
 .stChatMessage {{
     background: rgba(255,255,255,0.08) !important;
     border: 1px solid rgba(255,255,255,0.15) !important;
     border-radius: 15px !important;
-    padding: 15px !important;
     margin-bottom: 10px;
 }}
-.stChatMessage div, .stChatMessage p, .stChatMessage span {{
-    color: #FFFFFF !important;
-    font-size: 16px !important;
+
+.stChatMessage p {{
+    color: white !important;
 }}
 
-/* INPUT CHAT */
+/* Input Chat - Padding e Stile */
 .stChatInputContainer {{
-    background-color: rgba(0,0,0,0.8) !important;
-    padding: 20px 40px !important;
-    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 20px !important;
+    background-color: transparent !important;
 }}
 
 .stChatInput textarea {{
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
-    border-radius: 25px !important;
-    padding: 15px 25px !important;
-    line-height: 1.5 !important;
+    border-radius: 20px !important;
+    padding: 10px 20px !important;
 }}
 
 /* Home Card */
 .home-container {{
     display:flex; flex-direction:column; align-items:center;
-    justify-content:center; height:55vh; text-align:center;
+    justify-content:center; height:50vh; text-align:center;
 }}
 .home-card {{
-    width: 380px; height: 210px; border-radius: 20px;
+    width: 350px; height: 180px; border-radius: 20px;
     background-image: url('{BG}'); background-size: cover;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.8);
     border: 2px solid rgba(255,255,255,0.2);
 }}
-.home-title {{ 
-    margin-top:30px; 
-    color: #FFFFFF !important; 
-    letter-spacing:4px; 
-    font-weight: 800; 
-    text-transform: uppercase;
-}}
-.home-sub {{ color:#cccccc; font-style: italic; }}
-
 </style>
 
-<div class="header">
-    <img src="https://i.ibb.co/NgwLt8cT/logo-savoia.png" style="height: 45px; width: auto; margin-right: 20px;">
+<div id="custom-header">
+    <img src="https://i.ibb.co/NgwLt8cT/logo-savoia.png" style="height: 40px; margin-right: 15px;">
     <h1>EL LOCO MUÑOZ AI</h1>
 </div>
 """, unsafe_allow_html=True)
@@ -197,11 +158,7 @@ def generate_title(user, bot):
 
 # ================= SIDEBAR =================
 with st.sidebar:
-    c1, c2, c3 = st.columns([0.05, 0.9, 0.05])
-    with c2:
-        st.markdown('<div class="no-zoom">', unsafe_allow_html=True)
-        st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -226,7 +183,6 @@ with st.sidebar:
                     st.session_state.chats[i]["title"] = new_n
                     save_chats()
                     st.rerun()
-                st.markdown("---")
                 if st.button("Elimina", key=f"del_{i}", use_container_width=True):
                     st.session_state.chats.pop(i)
                     save_chats()
@@ -238,8 +194,8 @@ if not st.session_state.messages:
     st.markdown(f"""
     <div class="home-container">
         <div class="home-card"></div>
-        <h1 class="home-title">EL LOCO MUÑOZ</h1>
-        <p class="home-sub">Sempre e ovunque, per la maglia.</p>
+        <h2 style="color:white; margin-top:20px; letter-spacing:2px;">EL LOCO MUÑOZ</h2>
+        <p style="color:#ccc; font-style:italic;">Sempre e ovunque, per la maglia.</p>
     </div>
     """, unsafe_allow_html=True)
 else:
@@ -250,12 +206,15 @@ else:
 # ================= INPUT & RESPONSE =================
 if prompt := st.chat_input("Scrivi al Loco..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    st.rerun()
+    
+    if client:
+        # Mostriamo il messaggio dell'utente immediatamente
+        st.rerun()
 
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
     if client:
         with st.chat_message("assistant"):
-            sys_msg = "Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso e diretto."
+            sys_msg = "Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso, verace e diretto."
             try:
                 full_msgs = [{"role": "system", "content": sys_msg}] + st.session_state.messages
                 comp = client.chat.completions.create(
@@ -267,6 +226,7 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
                 st.markdown(res)
                 st.session_state.messages.append({"role": "assistant", "content": res})
 
+                # Gestione salvataggio chat
                 if st.session_state.chat_id is None:
                     cid = str(uuid.uuid4())
                     title = generate_title(prompt, res)
