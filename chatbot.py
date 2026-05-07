@@ -122,7 +122,6 @@ html, body, [class*="css"] {{
     text-transform: uppercase;
     font-size: 2.8rem;
     width: 100%;
-    padding-left: 90px;
 }}
 
 .home-sub {{ 
@@ -133,7 +132,6 @@ html, body, [class*="css"] {{
     margin-top: 10px;
     width: 100%;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    padding-left: 20px;
 }}
 
 </style>
