@@ -2,8 +2,12 @@ import streamlit as st
 from groq import Groq
 import json, os, time, uuid
 
-# ================= CONFIG =================
-st.set_page_config(page_title="EL LOCO MUÑOZ AI", layout="wide")
+# ================= CONFIG (CON LOGO BROWSER) =================
+st.set_page_config(
+    page_title="EL LOCO MUÑOZ AI", 
+    page_icon="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Savoia_1908_logo.png/600px-Savoia_1908_logo.png", 
+    layout="wide"
+)
 
 BG = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg"
 CHAT_FILE = "chat_history.json"
@@ -64,6 +68,12 @@ html, body, [class*="css"] {{
     margin-top: 5px !important;
 }}
 
+/* Rimpicciolisce il quadrato del Popover (il corpo interno) */
+[data-testid="stPopoverBody"] {{
+    width: 180px !important;
+    min-width: 180px !important;
+}}
+
 /* MESSAGGI CHAT */
 .stChatMessage {{
     background: rgba(255,255,255,0.08) !important;
@@ -120,7 +130,6 @@ html, body, [class*="css"] {{
 
 <div class="header">
     <h1>EL LOCO MUÑOZ AI</h1>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/AC_Savoia_1908_(logo_2022).jpg" class="logo-right">
 </div>
 """, unsafe_allow_html=True)
 
@@ -161,7 +170,7 @@ def generate_title(user, bot):
         res = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": "Crea un titolo di MAX 4 parole. No emoji."},
+                {"role": "system", "content": "Crea un titolo di MAX 4 parole per questa conversazione analizzando utente e bot. No emoji."},
                 {"role": "user", "content": f"U: {user}\nA: {bot}"}
             ],
             max_tokens=10
