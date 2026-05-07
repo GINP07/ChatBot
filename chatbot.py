@@ -5,7 +5,7 @@ import json, os, time, uuid
 # ================= CONFIG (CON LOGO BROWSER) =================
 st.set_page_config(
     page_title="EL LOCO MUÑOZ AI", 
-    page_icon="", 
+    page_icon="https://i.ibb.co/NgwLt8cT/logo-savoia.png", 
     layout="wide"
 )
 
