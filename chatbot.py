@@ -8,7 +8,7 @@ st.set_page_config(page_title="EL LOCO MUÑOZ AI", layout="wide")
 BG = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg"
 CHAT_FILE = "chat_history.json"
 
-# ================= CSS PREMIUM CORRETTO =================
+# ================= CSS PREMIUM =================
 st.markdown(f"""
 <style>
 /* Font e Sfondo */
@@ -60,7 +60,6 @@ html, body, [class*="css"] {{
     margin-bottom: 10px;
 }}
 
-/* Forza il colore del testo in tutta la chat */
 .stChatMessage div, .stChatMessage p, .stChatMessage span {{
     color: #FFFFFF !important;
     font-size: 16px !important;
@@ -137,7 +136,7 @@ def generate_title(user, bot):
         res = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": "Sei un titolista. Crea un titolo di MAX 4 parole per questa conversazione. Niente emoji."},
+                {"role": "system", "content": "Crea un titolo di MAX 4 parole. No emoji."},
                 {"role": "user", "content": f"U: {user}\nA: {bot}"}
             ],
             max_tokens=10
@@ -163,17 +162,14 @@ with st.sidebar:
                 st.session_state.chat_id = c["id"]
                 st.rerun()
         with col2:
-            with st.popover("▼", key=f"menu_{i}"):
-                # AGGIUNTO: CAMPO RINOMINA + SALVA
+            # Rimosso il testo personalizzato dal popover, lasciato vuoto per icona base
+            with st.popover("", key=f"menu_{i}"):
                 new_n = st.text_input("Rinomina", value=c["title"], key=f"ren_input_{i}")
                 if st.button("Salva", key=f"save_{i}", use_container_width=True):
                     st.session_state.chats[i]["title"] = new_n
                     save_chats()
                     st.rerun()
-                
                 st.markdown("---")
-                
-                # ELIMINA
                 if st.button("Elimina", key=f"del_{i}", use_container_width=True):
                     st.session_state.chats.pop(i)
                     save_chats()
@@ -200,11 +196,9 @@ if prompt := st.chat_input("Scrivi al Loco..."):
     st.rerun()
 
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
-    if not client:
-        st.error("API Key mancante nei Secrets!")
-    else:
+    if client:
         with st.chat_message("assistant"):
-            sys_msg = "Sei El Loco Muñoz, ultras carismatico del Savoia 1908. Rispondi con orgoglio, fiero e diretto."
+            sys_msg = "Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso e diretto."
             try:
                 full_msgs = [{"role": "system", "content": sys_msg}] + st.session_state.messages
                 comp = client.chat.completions.create(
@@ -212,24 +206,4 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
                     messages=full_msgs,
                     temperature=0.7
                 )
-                res = comp.choices[0].message.content
-                st.markdown(res)
-                st.session_state.messages.append({"role": "assistant", "content": res})
-
-                # Gestione salvataggio e titolo intelligente
-                if st.session_state.chat_id is None:
-                    cid = str(uuid.uuid4())
-                    title = generate_title(prompt, res)
-                    st.session_state.chats.insert(0, {
-                        "id": cid, "title": title, "messages": list(st.session_state.messages)
-                    })
-                    st.session_state.chat_id = cid
-                else:
-                    for c in st.session_state.chats:
-                        if c["id"] == st.session_state.chat_id:
-                            c["messages"] = list(st.session_state.messages)
-                
-                save_chats()
-                st.rerun()
-            except Exception as e:
-                st.error(f"Errore: {e}")
+                res = comp.choices
