@@ -120,6 +120,7 @@ html, body, [class*="css"] {{
 
 <div class="header">
     <h1>EL LOCO MUÑOZ AI</h1>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/AC_Savoia_1908_(logo_2022).jpg" class="logo-right">
 </div>
 """, unsafe_allow_html=True)
 
