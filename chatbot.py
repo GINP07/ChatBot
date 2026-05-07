@@ -8,110 +8,90 @@ st.set_page_config(page_title="EL LOCO MUÑOZ AI", layout="wide")
 BG = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg"
 CHAT_FILE = "chat_history.json"
 
-# ================= CSS PREMIUM =================
+# ================= CSS PREMIUM CORRETTO =================
 st.markdown(f"""
 <style>
-
+/* Font e Sfondo */
 html, body, [class*="css"] {{
     font-family: 'Inter', sans-serif;
 }}
 
 .stApp {{
-    background:
-    linear-gradient(rgba(0,0,0,0.82), rgba(0,0,0,0.92)),
-    url("{BG}");
+    background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url("{BG}");
     background-size: cover;
     background-attachment: fixed;
 }}
 
+/* Header */
 .header {{
-    position: fixed;
-    top: 0;
-    width: 100%;
-    height: 70px;
-    background: rgba(0,0,0,0.95);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+    background: rgba(0,0,0,0.98);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999; border-bottom: 1px solid rgba(255,255,255,0.2);
 }}
 
 .header h1 {{
-    color: white;
-    font-size: 20px;
-    letter-spacing: 2px;
+    color: #FFFFFF !important;
+    font-size: 22px;
+    letter-spacing: 3px;
     margin: 0;
+    font-weight: 900;
 }}
 
-.block-container {{
-    padding-top: 100px;
-}}
+.block-container {{ padding-top: 100px; }}
 
-[data-testid="stSidebar"] {{
-    background: #f0f0f0;
-}}
-
-[data-testid="stSidebar"] * {{
-    color: #000 !important;
-}}
-
+/* Sidebar - Contrasto Nero su Bianco */
+[data-testid="stSidebar"] {{ background: #fdfdfd !important; }}
+[data-testid="stSidebar"] * {{ color: #000000 !important; }}
 [data-testid="stSidebar"] button {{
     background: transparent !important;
-    border: none !important;
+    border: 1px solid #eee !important;
     text-align: left !important;
+    margin-bottom: 5px;
 }}
+[data-testid="stSidebar"] button:hover {{ background: #f0f0f0 !important; }}
 
-[data-testid="stSidebar"] button:hover {{
-    background: #e0e0e0 !important;
-}}
-
+/* MESSAGGI CHAT - TESTO BIANCO */
 .stChatMessage {{
-    background: rgba(0,0,0,0.6) !important;
-    border-radius: 14px !important;
-    padding: 12px !important;
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    border-radius: 15px !important;
+    padding: 15px !important;
+    margin-bottom: 10px;
 }}
 
-.stChatInput {{
-    max-width: 600px;
-    margin: auto;
+/* Forza il colore del testo in tutta la chat */
+.stChatMessage div, .stChatMessage p, .stChatMessage span {{
+    color: #FFFFFF !important;
+    font-size: 16px !important;
+    line-height: 1.6;
 }}
 
-.stChatInput input {{
-    border-radius: 25px !important;
-    padding: 12px !important;
-    background: #fff !important;
-    color: #000 !important;
+/* Input Chat */
+.stChatInputContainer {{
+    background-color: rgba(0,0,0,0.5) !important;
+    padding: 10px !important;
 }}
 
-.home-card {{
-    width: 420px;
-    height: 240px;
-    border-radius: 18px;
-    background-image: url('{BG}');
-    background-size: cover;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.8);
-    border: 1px solid rgba(255,255,255,0.1);
+.stChatInput textarea {{
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-radius: 20px !important;
 }}
 
+/* Home Card */
 .home-container {{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    height:60vh;
-    text-align:center;
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:center; height:60vh; text-align:center;
 }}
-
-.home-title {{
-    margin-top:30px;
-    color:white;
-    letter-spacing:3px;
+.home-card {{
+    width: 380px; height: 210px; border-radius: 20px;
+    background-image: url('{BG}'); background-size: cover;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    border: 2px solid rgba(255,255,255,0.2);
 }}
-
-.home-sub {{
-    color:#aaa;
-}}
+.home-title {{ margin-top:30px; color:white; letter-spacing:4px; font-weight: 800; }}
+.home-sub {{ color:#cccccc; font-style: italic; }}
 
 </style>
 
@@ -122,167 +102,92 @@ html, body, [class*="css"] {{
 
 # ================= STORAGE =================
 def load_chats():
-    try:
-        if os.path.exists(CHAT_FILE):
+    if os.path.exists(CHAT_FILE):
+        try:
             with open(CHAT_FILE, "r") as f:
                 return json.load(f)
-    except:
-        return []
+        except: return []
     return []
 
 def save_chats():
-    try:
-        with open(CHAT_FILE, "w") as f:
-            json.dump(st.session_state.chats, f)
-    except:
-        pass
+    with open(CHAT_FILE, "w") as f:
+        json.dump(st.session_state.chats, f)
 
 # ================= SESSION =================
 if "messages" not in st.session_state:
     st.session_state.messages = []
-
 if "chats" not in st.session_state:
     st.session_state.chats = load_chats()
-
 if "chat_id" not in st.session_state:
     st.session_state.chat_id = None
 
 # ================= API =================
 client = None
-try:
+if "GROQ_API_KEY" in st.secrets:
     client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-except:
-    pass
 
 # ================= UTILS =================
 def new_chat():
     st.session_state.messages = []
     st.session_state.chat_id = None
 
-def typing(text):
-    box = st.empty()
-    full = ""
-    for w in text.split():
-        full += w + " "
-        box.markdown(full)
-        time.sleep(0.015)
-
 def generate_title(user, bot):
+    if not client: return "Nuova Chat"
     try:
         res = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": "Crea un titolo breve (max 5 parole) basato su domanda e risposta."},
-                {"role": "user", "content": f"{user} {bot}"}
+                {"role": "system", "content": "Sei un titolista. Crea un titolo di MAX 4 parole per questa conversazione. Niente emoji."},
+                {"role": "user", "content": f"U: {user}\nA: {bot}"}
             ],
-            max_tokens=15
+            max_tokens=10
         )
-        return res.choices[0].message.content.strip()
-    except:
-        return "Chat"
+        return res.choices[0].message.content.strip().replace('"', '')
+    except: return "Savoia Chat"
 
 # ================= SIDEBAR =================
 with st.sidebar:
-
-    if st.button("Nuova chat"):
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    if st.button("➕ NUOVA CHAT", use_container_width=True):
         new_chat()
         st.rerun()
 
     st.markdown("---")
+    st.caption("CRONOLOGIA")
 
     for i, c in enumerate(st.session_state.chats):
-
-        col1, col2 = st.columns([0.85, 0.15])
-
+        col1, col2 = st.columns([0.8, 0.2])
         with col1:
             if st.button(c["title"], key=f"chat_{i}", use_container_width=True):
                 st.session_state.messages = c["messages"]
                 st.session_state.chat_id = c["id"]
                 st.rerun()
-
         with col2:
-            with st.popover("⋯", key=f"menu_{i}"):
-
-                new_name = st.text_input(
-                    "Rinomina",
-                    value=c["title"],
-                    key=f"rename_{i}"
-                )
-
-                if st.button("Salva", key=f"save_{i}"):
-                    st.session_state.chats[i]["title"] = new_name
-                    save_chats()
-                    st.rerun()
-
-                if st.button("Elimina", key=f"delete_{i}"):
+            with st.popover("▼", key=f"menu_{i}"):
+                if st.button("Elimina", key=f"del_{i}", use_container_width=True):
                     st.session_state.chats.pop(i)
-                    new_chat()
                     save_chats()
+                    new_chat()
                     st.rerun()
 
-# ================= HOME =================
+# ================= MAIN AREA =================
 if not st.session_state.messages:
-
     st.markdown(f"""
     <div class="home-container">
         <div class="home-card"></div>
-        <h2 class="home-title">CHIEDI AL LOCO</h2>
-        <p class="home-sub">Orgoglio. Identità. Savoia.</p>
+        <h1 class="home-title">EL LOCO MUÑOZ</h1>
+        <p class="home-sub">Sempre e ovunque, per la maglia.</p>
     </div>
     """, unsafe_allow_html=True)
-
-# ================= CHAT =================
 else:
     for m in st.session_state.messages:
         with st.chat_message(m["role"]):
             st.markdown(m["content"])
 
-# ================= INPUT =================
-if prompt := st.chat_input("Chiedi al Loco"):
-
+# ================= INPUT & RESPONSE =================
+if prompt := st.chat_input("Scrivi al Loco..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.rerun()
 
-# ================= RESPONSE =================
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
-
-    prompt = st.session_state.messages[-1]["content"]
-
-    with st.chat_message("assistant"):
-
-        system = """
-        Sei El Loco Muñoz, ultras del Savoia.
-        Diretto, carismatico, mai banale.
-        """
-
-        try:
-            comp = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[{"role": "system", "content": system}] + st.session_state.messages
-            )
-            res = comp.choices[0].message.content
-            typing(res)
-        except:
-            res = "Errore AI"
-
-        st.session_state.messages.append({"role": "assistant", "content": res})
-
-        if st.session_state.chat_id is None:
-            cid = str(uuid.uuid4())
-            title = generate_title(prompt, res)
-
-            st.session_state.chats.insert(0, {
-                "id": cid,
-                "title": title,
-                "messages": list(st.session_state.messages)
-            })
-
-            st.session_state.chat_id = cid
-
-        else:
-            for c in st.session_state.chats:
-                if c["id"] == st.session_state.chat_id:
-                    c["messages"] = list(st.session_state.messages)
-
-        save_chats()
-        st.rerun()
+    if not
