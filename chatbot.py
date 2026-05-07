@@ -26,24 +26,23 @@ html, body, [class*="css"] {{
     background-attachment: fixed;
 }}
 
-/* Header - COMPLETAMENTE BIANCO E SOTTO LA SIDEBAR */
+/* Header - BIANCO, SCRITTA NERA E SOPRA LA SIDEBAR */
 .header {{
     position: fixed; 
     top: 0; 
     left: 0; 
-    width: 100%; 
+    width: 100vw; 
     height: 70px;
-    background: #FFFFFF !important; /* Bianco puro */
+    background: #FFFFFF !important; 
     display: flex; 
     align-items: center; 
     justify-content: center;
-    z-index: 99; /* Z-index più basso della sidebar */
-    border-bottom: 1px solid #dddddd;
-    padding-left: 20px;
+    z-index: 1000001 !important; /* Z-index massimo per sovrastare la sidebar */
+    border_bottom: 1px solid #dddddd;
 }}
 
 .header h1 {{
-    color: #000000 !important; /* Scritta nera */
+    color: #000000 !important; 
     font-size: 22px;
     letter-spacing: 3px;
     margin: 0;
@@ -52,10 +51,16 @@ html, body, [class*="css"] {{
 
 .block-container {{ padding-top: 100px; }}
 
-/* Sidebar - SOPRA L'HEADER */
+/* Sidebar */
 [data-testid="stSidebar"] {{ 
     background: #fdfdfd !important; 
-    z-index: 1000 !important; /* Più alto dell'header */
+    z-index: 1000000 !important; 
+}}
+
+/* FIX: Toglie lo zoom e il click dall'immagine della sidebar */
+[data-testid="stSidebar"] [data-testid="stImage"] img {{
+    pointer-events: none !important;
+    cursor: default !important;
 }}
 
 /* Rimuove lo spazio vuoto in alto e il tasto chiudi */
@@ -64,11 +69,6 @@ html, body, [class*="css"] {{
 }}
 [data-testid="stSidebarCollapseButton"] {{
     display: none !important;
-}}
-
-/* Immagine sidebar non cliccabile */
-[data-testid="stSidebar"] img {{
-    pointer-events: none;
 }}
 
 [data-testid="stSidebar"] * {{ color: #000000 !important; }}
@@ -85,7 +85,6 @@ html, body, [class*="css"] {{
     width: 25px !important;
     height: 25px !important;
     min-width: 25px !important;
-    min-height: 25px !important;
     padding: 0px !important;
     display: flex !important;
     align-items: center !important;
