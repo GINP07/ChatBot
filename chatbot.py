@@ -51,10 +51,17 @@ html, body, [class*="css"] {{
 }}
 [data-testid="stSidebar"] button:hover {{ background: #f0f0f0 !important; }}
 
-/* Rimpicciolisce il quadrato del Popover */
-[data-testid="stPopoverBody"] {{
-    width: 180px !important;
-    min-width: 180px !important;
+/* RIMPICCIOLISCE IL BOTTONE DI APERTURA DEL POPOVER */
+.stPopover > button {{
+    width: 25px !important;
+    height: 25px !important;
+    min-width: 25px !important;
+    min-height: 25px !important;
+    padding: 0px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-top: 5px !important;
 }}
 
 /* MESSAGGI CHAT */
@@ -82,11 +89,11 @@ html, body, [class*="css"] {{
     background-color: #FFFFFF !important;
     color: #000000 !important;
     border-radius: 20px !important;
-    padding-left: 35px !important; /* Sposta il testo che scrivi */
+    padding-left: 35px !important; 
 }}
 
 .stChatInput textarea::placeholder {{
-    padding-left: 5px !important; /* Allineato all'input reale */
+    padding-left: 5px !important; 
 }}
 
 /* Home Card & Title */
