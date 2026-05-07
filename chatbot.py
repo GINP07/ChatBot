@@ -26,12 +26,13 @@ html, body, [class*="css"] {{
     background-attachment: fixed;
 }}
 
-/* Header */
+/* Header - FIX: Z-INDEX ALTO E PADDING PER SIDEBAR */
 .header {{
     position: fixed; top: 0; left: 0; width: 100%; height: 70px;
     background: rgba(0,0,0,0.98);
     display: flex; align-items: center; justify-content: center;
-    z-index: 999; border-bottom: 1px solid rgba(255,255,255,0.2);
+    z-index: 10000; border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-left: 20px;
 }}
 
 .header h1 {{
@@ -45,7 +46,7 @@ html, body, [class*="css"] {{
 .block-container {{ padding-top: 100px; }}
 
 /* Sidebar */
-[data-testid="stSidebar"] {{ background: #fdfdfd !important; }}
+[data-testid="stSidebar"] {{ background: #fdfdfd !important; z-index: 9999; }}
 [data-testid="stSidebar"] * {{ color: #000000 !important; }}
 [data-testid="stSidebar"] button {{
     background: transparent !important;
@@ -129,8 +130,8 @@ html, body, [class*="css"] {{
 </style>
 
 <div class="header">
+    <img src="https://i.ibb.co/NgwLt8cT/logo-savoia.png" style="height: 45px; width: auto; margin-right: 20px;">
     <h1>EL LOCO MUÑOZ AI</h1>
-    <img src="https://i.ibb.co/NgwLt8cT/logo-savoia.png" class="logo-right" style="position: absolute; left: 50px; height: 45px; width: auto; top: 12px;">
 </div>
 """, unsafe_allow_html=True)
 
@@ -181,8 +182,10 @@ def generate_title(user, bot):
 
 # ================= SIDEBAR =================
 with st.sidebar:
-    # FOTO SPOSTATA SOPRA E INDENTATA CORRETTAMENTE
-    st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
+    # Ridimensionata al 90% circa tramite colonne e disabilitato il click (zoom)
+    c1, c2, c3 = st.columns([0.05, 0.9, 0.05])
+    with c2:
+        st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
