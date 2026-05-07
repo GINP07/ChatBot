@@ -181,8 +181,13 @@ def generate_title(user, bot):
 
 # ================= SIDEBAR =================
 with st.sidebar:
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    if st.button("➕ NUOVA CHAT", use_container_width=True):
+    # Foto spostata SOPRA il pulsante Nuova Chat
+    st.image("https://i.ibb.co/6cymMzFL/curva-savoia.jpg", use_container_width=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Emoji + sostituita con carattere tastiera +
+    if st.button("+ NUOVA CHAT", use_container_width=True):
         new_chat()
         st.rerun()
 
