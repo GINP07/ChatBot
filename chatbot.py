@@ -181,12 +181,11 @@ def generate_title(user, bot):
 
 # ================= SIDEBAR =================
 with st.sidebar:
-    # Foto spostata SOPRA il pulsante Nuova Chat
-st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
+    # FOTO SPOSTATA SOPRA E INDENTATA CORRETTAMENTE
+    st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Emoji + sostituita con carattere tastiera +
     if st.button("+ NUOVA CHAT", use_container_width=True):
         new_chat()
         st.rerun()
