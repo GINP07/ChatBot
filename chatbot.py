@@ -122,7 +122,7 @@ html, body, [class*="css"] {{
     text-transform: uppercase;
     font-size: 2.8rem;
     width: 100%;
-    padding-left: 20px;
+    padding-left: 50px;
 }}
 
 .home-sub {{ 
