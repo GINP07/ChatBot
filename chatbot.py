@@ -182,7 +182,7 @@ def generate_title(user, bot):
 # ================= SIDEBAR =================
 with st.sidebar:
     # Foto spostata SOPRA il pulsante Nuova Chat
-    st.image("https://i.ibb.co/6cymMzFL/curva-savoia.jpg", use_container_width=True)
+    st.image("img src="https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
