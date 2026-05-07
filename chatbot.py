@@ -164,6 +164,16 @@ with st.sidebar:
                 st.rerun()
         with col2:
             with st.popover("▼", key=f"menu_{i}"):
+                # AGGIUNTO: CAMPO RINOMINA + SALVA
+                new_n = st.text_input("Rinomina", value=c["title"], key=f"ren_input_{i}")
+                if st.button("Salva", key=f"save_{i}", use_container_width=True):
+                    st.session_state.chats[i]["title"] = new_n
+                    save_chats()
+                    st.rerun()
+                
+                st.markdown("---")
+                
+                # ELIMINA
                 if st.button("Elimina", key=f"del_{i}", use_container_width=True):
                     st.session_state.chats.pop(i)
                     save_chats()
