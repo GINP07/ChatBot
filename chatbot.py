@@ -26,29 +26,29 @@ html, body, [class*="css"] {{
     background-attachment: fixed;
 }}
 
-/* Header - BIANCO, SCRITTA NERA E SOPRA LA SIDEBAR */
+/* Header - FORZATO BIANCO, SCRITTA NERA */
 .header {{
     position: fixed; 
     top: 0; 
     left: 0; 
-    width: 100vw; 
+    width: 100%; 
     height: 70px;
-    background: #FFFFFF !important; 
+    background-color: #FFFFFF !important; 
     display: flex; 
     align-items: center; 
     justify-content: center;
-    z-index: 1000 !important; 
-    border-bottom: 1px solid #dddddd;
+    z-index: 9999 !important; /* Molto alto per non sparire */
+    border-bottom: 2px solid #eeeeee;
 }}
 
-/* Rimuove l'icona link (ancora) dai titoli */
+/* Rimuove l'icona link (ancora) dai titoli e assicura il nero */
 .header h1 {{
     color: #000000 !important; 
-    font-size: 22px;
+    font-size: 22px !important;
     letter-spacing: 3px;
-    margin: 0;
+    margin: 0 !important;
     font-weight: 900;
-    border: none !important;
+    text-decoration: none;
 }}
 .header h1 a {{
     display: none !important;
@@ -59,26 +59,26 @@ html, body, [class*="css"] {{
 /* Sidebar */
 [data-testid="stSidebar"] {{ 
     background: #fdfdfd !important; 
-    z-index: 1100 !important; 
+    z-index: 10000 !important; 
 }}
 
 /* BLOCCA APERTURA FOTO SIDEBAR */
-[data-testid="stSidebar"] [data-testid="stImage"] {{
+[data-testid="stSidebar"] [data-testid="stImage"] img {{
     pointer-events: none !important;
     user-select: none !important;
-    -webkit-user-drag: none !important;
+    cursor: default !important;
 }}
 
-/* RE-INSERISCE E POSIZIONA IL TASTO APRI/CHIUDI SIDEBAR */
+/* TASTO APRI/CHIUDI SIDEBAR */
 [data-testid="stSidebarCollapseButton"] {{
     display: block !important;
     position: fixed !important;
     top: 15px !important;
     left: 10px !important;
-    z-index: 2000 !important;
+    z-index: 10001 !important;
     color: #000000 !important;
     background-color: #f0f0f0 !important;
-    border-radius: 50% !important;
+    border-radius: 8px !important;
 }}
 
 [data-testid="stSidebar"] * {{ color: #000000 !important; }}
@@ -89,18 +89,6 @@ html, body, [class*="css"] {{
     margin-bottom: 5px;
 }}
 [data-testid="stSidebar"] button:hover {{ background: #f0f0f0 !important; }}
-
-/* POPOVER */
-.stPopover > button {{
-    width: 25px !important;
-    height: 25px !important;
-    min-width: 25px !important;
-    padding: 0px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin-top: 5px !important;
-}}
 
 /* MESSAGGI CHAT */
 .stChatMessage {{
@@ -203,7 +191,10 @@ def generate_title(user, bot):
 with st.sidebar:
     c1, c2, c3 = st.columns([0.05, 0.9, 0.05])
     with c2:
+        # Aggiunta classe per bloccare lo zoom anche via HTML
+        st.markdown('<div class="no-zoom">', unsafe_allow_html=True)
         st.image("https://i.ibb.co/Xf5VVr4W/dani-munoz.png", use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
