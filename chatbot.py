@@ -66,7 +66,7 @@ html, body, [class*="css"] {{
     line-height: 1.6;
 }}
 
-/* Input Chat */
+/* Input Chat - Testo placeholder spostato a destra */
 .stChatInputContainer {{
     background-color: rgba(0,0,0,0.5) !important;
     padding: 10px !important;
@@ -76,6 +76,11 @@ html, body, [class*="css"] {{
     background-color: #FFFFFF !important;
     color: #000000 !important;
     border-radius: 20px !important;
+}}
+
+/* Sposta il placeholder (Scrivi al Loco...) più a destra */
+.stChatInput textarea::placeholder {{
+    padding-left: 30px !important; 
 }}
 
 /* Home Card & Title */
@@ -91,7 +96,7 @@ html, body, [class*="css"] {{
 }}
 .home-title {{ 
     margin-top:30px; 
-    color: #FFFFFF !important; /* TITOLO BIANCO NELLA HOME */
+    color: #FFFFFF !important; 
     letter-spacing:4px; 
     font-weight: 800; 
     text-transform: uppercase;
