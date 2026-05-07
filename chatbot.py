@@ -9,7 +9,9 @@ st.set_page_config(
     layout="wide"
 )
 
-BG = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg"
+# --- LINK IMMAGINI ---
+BG_GENERALE = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg"
+IMMAGINE_HOME_CENTRALE = "https://i.ibb.co/0VmLsgkM/SQUADRA-SAVOIA.png" # <--- CAMBIA QUESTO LINK PER L'IMMAGINE NELLA HOME
 LOGO_PICCOLO = "https://i.ibb.co/NgwLt8cT/logo-savoia.png"
 CHAT_FILE = "chat_history.json"
 
@@ -22,7 +24,7 @@ html, body, [class*="css"] {{
 }}
 
 .stApp {{
-    background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url("{BG}");
+    background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.95)), url("{BG_GENERALE}");
     background-size: cover;
     background-attachment: fixed;
 }}
@@ -100,17 +102,16 @@ html, body, [class*="css"] {{
     filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
 }}
 
-/* QUI MODIFICHI IL PADDING/MARGIN DELL'IMMAGINE */
 .home-card {{
-    width: 380px; 
-    height: 210px; 
+    width: 420px; 
+    height: 240px; 
     border-radius: 20px;
-    background-image: url('{BG}'); 
+    background-image: url('{IMMAGINE_HOME_CENTRALE}'); 
     background-size: cover;
     background-position: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
     border: 2px solid rgba(255,255,255,0.2);
-    margin: 10px auto; /* Aumenta il primo valore (10px) per dare più spazio sopra/sotto l'immagine */
+    margin: 15px auto;
 }}
 
 .home-title {{ 
@@ -124,12 +125,13 @@ html, body, [class*="css"] {{
 }}
 
 .home-sub {{ 
-    color: #FF0000 !important; /* ROSSO SAVOIA */
+    color: #A52A2A !important; /* Rosso meno acceso (Brownish Red / Amaranto) */
     font-style: italic; 
     font-weight: 800;
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     margin-top: 10px;
     width: 100%;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }}
 
 </style>
