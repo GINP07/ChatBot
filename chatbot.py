@@ -100,6 +100,7 @@ html, body, [class*="css"] {{
     filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
 }}
 
+/* QUI MODIFICHI IL PADDING/MARGIN DELL'IMMAGINE */
 .home-card {{
     width: 380px; 
     height: 210px; 
@@ -109,7 +110,7 @@ html, body, [class*="css"] {{
     background-position: center;
     box-shadow: 0 20px 60px rgba(0,0,0,0.7);
     border: 2px solid rgba(255,255,255,0.2);
-    margin: 0 auto;
+    margin: 10px auto; /* Aumenta il primo valore (10px) per dare più spazio sopra/sotto l'immagine */
 }}
 
 .home-title {{ 
@@ -123,13 +124,12 @@ html, body, [class*="css"] {{
 }}
 
 .home-sub {{ 
-    color: #000000 !important; /* Nero scuro */
+    color: #FF0000 !important; /* ROSSO SAVOIA */
     font-style: italic; 
     font-weight: 800;
     font-size: 1.2rem;
     margin-top: 10px;
     width: 100%;
-    /* Rimosso background e padding che evidenziavano */
 }}
 
 </style>
@@ -227,7 +227,6 @@ if not st.session_state.messages:
     </div>
     """, unsafe_allow_html=True)
 else:
-    # Piccolo logo di richiamo quando la chat è attiva
     st.image(LOGO_PICCOLO, width=50)
     for m in st.session_state.messages:
         with st.chat_message(m["role"]):
