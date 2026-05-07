@@ -5,7 +5,7 @@ import json, os, time, uuid
 # ================= CONFIG (CON LOGO BROWSER) =================
 st.set_page_config(
     page_title="EL LOCO MUÑOZ AI", 
-    page_icon="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Savoia_1908_logo.png/600px-Savoia_1908_logo.png", 
+    page_icon="", 
     layout="wide"
 )
 
@@ -57,7 +57,7 @@ html, body, [class*="css"] {{
 
 /* RIMPICCIOLISCE IL BOTTONE DI APERTURA DEL POPOVER */
 .stPopover > button {{
-    width: 25px !important;
+    width: 15px !important;
     height: 25px !important;
     min-width: 25px !important;
     min-height: 25px !important;
