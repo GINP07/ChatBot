@@ -27,8 +27,6 @@ html, body, [class*="css"] {{
     background-attachment: fixed;
 }}
 
-/* Header rimosso per non sovrastare la sidebar */
-
 /* Padding per il contenuto principale */
 .block-container {{ 
     padding-top: 50px !important; 
@@ -85,7 +83,7 @@ html, body, [class*="css"] {{
     line-height: 1.5 !important;
 }}
 
-/* Home Card & Centratura */
+/* Home Card & Centratura Totale */
 .home-container {{
     display: flex;
     flex-direction: column;
@@ -93,11 +91,12 @@ html, body, [class*="css"] {{
     justify-content: center;
     height: 65vh;
     text-align: center;
+    width: 100%;
 }}
 
 .logo-home-mini {{
-    width: 60px;
-    margin-bottom: 15px;
+    width: 70px;
+    margin-bottom: 20px;
     filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
 }}
 
@@ -110,6 +109,7 @@ html, body, [class*="css"] {{
     background-position: center;
     box-shadow: 0 20px 60px rgba(0,0,0,0.7);
     border: 2px solid rgba(255,255,255,0.2);
+    margin: 0 auto;
 }}
 
 .home-title {{ 
@@ -118,17 +118,18 @@ html, body, [class*="css"] {{
     letter-spacing: 4px; 
     font-weight: 800; 
     text-transform: uppercase;
-    font-size: 2.5rem;
+    font-size: 2.8rem;
+    width: 100%;
 }}
 
 .home-sub {{ 
-    color: #1a1a1a !important; /* Nero scuro */
+    color: #000000 !important; /* Nero scuro */
     font-style: italic; 
-    font-weight: 900;
-    font-size: 1.1rem;
-    background: rgba(255,255,255,0.4); /* Leggera sfumatura per leggibilità su sfondo scuro */
-    padding: 2px 10px;
-    border-radius: 5px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    margin-top: 10px;
+    width: 100%;
+    /* Rimosso background e padding che evidenziavano */
 }}
 
 </style>
