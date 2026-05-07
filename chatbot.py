@@ -51,6 +51,12 @@ html, body, [class*="css"] {{
 }}
 [data-testid="stSidebar"] button:hover {{ background: #f0f0f0 !important; }}
 
+/* Rimpicciolisce il quadrato del Popover */
+[data-testid="stPopoverBody"] {{
+    width: 180px !important;
+    min-width: 180px !important;
+}}
+
 /* MESSAGGI CHAT */
 .stChatMessage {{
     background: rgba(255,255,255,0.08) !important;
@@ -66,7 +72,7 @@ html, body, [class*="css"] {{
     line-height: 1.6;
 }}
 
-/* Input Chat - Testo placeholder spostato a destra */
+/* Input Chat - Testo placeholder e input reale spostati a destra */
 .stChatInputContainer {{
     background-color: rgba(0,0,0,0.5) !important;
     padding: 10px !important;
@@ -76,11 +82,11 @@ html, body, [class*="css"] {{
     background-color: #FFFFFF !important;
     color: #000000 !important;
     border-radius: 20px !important;
+    padding-left: 35px !important; /* Sposta il testo che scrivi */
 }}
 
-/* Sposta il placeholder (Scrivi al Loco...) più a destra */
 .stChatInput textarea::placeholder {{
-    padding-left: 30px !important; 
+    padding-left: 5px !important; /* Allineato all'input reale */
 }}
 
 /* Home Card & Title */
