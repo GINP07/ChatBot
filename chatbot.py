@@ -1,5 +1,6 @@
 import streamlit as st
 from groq import Groq
+import google.generativeai as genai  # <--- AGGIUNTO per Gemini
 import json, os, time, uuid
 import docx  # <--- AGGIUNTO per leggere il database
 
@@ -186,10 +187,18 @@ if "chats" not in st.session_state:
 if "chat_id" not in st.session_state:
     st.session_state.chat_id = None
 
-# ================= API =================
-client = None
+# ================= API CONFIG =================
+# Configurazione Groq (vecchia, lasciata come backup)
+client_groq = None
 if "GROQ_API_KEY" in st.secrets:
-    client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+    client_groq = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+# Configurazione Gemini (NUOVA)
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    model_gemini = genai.GenerativeModel('gemini-1.5-flash')
+else:
+    st.error("Manca GEMINI_API_KEY nei Secrets!")
 
 # ================= UTILS =================
 def new_chat():
@@ -197,18 +206,21 @@ def new_chat():
     st.session_state.chat_id = None
 
 def generate_title(user, bot):
-    if not client: return "Nuova Chat"
+    # Usiamo Gemini per il titolo se disponibile, altrimenti Groq
     try:
-        res = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": "Crea un titolo di MAX 4 parole per questa conversazione. No emoji."},
-                {"role": "user", "content": f"U: {user}\nA: {bot}"}
-            ],
-            max_tokens=10
-        )
-        return res.choices[0].message.content.strip().replace('"', '')
-    except: return "Savoia Chat"
+        prompt_title = f"Crea un titolo di MAX 4 parole per questa conversazione. No emoji.\nU: {user}\nA: {bot}"
+        if "GEMINI_API_KEY" in st.secrets:
+            res = model_gemini.generate_content(prompt_title)
+            return res.text.strip().replace('"', '')
+        elif client_groq:
+            res = client_groq.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "system", "content": "Titolo max 4 parole"}, {"role": "user", "content": prompt_title}],
+                max_tokens=10
+            )
+            return res.choices[0].message.content.strip().replace('"', '')
+    except: pass
+    return "Savoia Chat"
 
 # ================= SIDEBAR =================
 with st.sidebar:
@@ -268,34 +280,48 @@ if prompt := st.chat_input("Scrivi al Loco..."):
     st.rerun()
 
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
-    if client:
-        with st.chat_message("assistant"):
-            # SYSTEM PROMPT INTEGRATO CON IL DATABASE
-            sys_msg = f"""Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso, verace e diretto.
-            Usa queste informazioni per rispondere: {KNOWLEDGE_BASE}
-            Se l'informazione non è nel testo, rispondi da ultras ma basandoti sulla tua fede biancoscudata."""
-            
-            try:
+    with st.chat_message("assistant"):
+        # SYSTEM PROMPT INTEGRATO CON IL DATABASE
+        sys_msg = f"""Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso, verace e diretto.
+        Usa queste informazioni per rispondere: {KNOWLEDGE_BASE}
+        Se l'informazione non è nel testo, rispondi da ultras ma basandoti sulla tua fede biancoscudata."""
+        
+        try:
+            # --- LOGICA GEMINI (Primaria per via del limite token) ---
+            if "GEMINI_API_KEY" in st.secrets:
+                # Prepariamo la cronologia per Gemini
+                history_text = ""
+                for msg in st.session_state.messages:
+                    history_text += f"\n{msg['role']}: {msg['content']}"
+                
+                full_prompt = f"{sys_msg}\n\nCronologia conversazione:{history_text}\n\nassistant:"
+                
+                response = model_gemini.generate_content(full_prompt)
+                res = response.text
+                
+            # --- LOGICA GROQ (Backup se Gemini fallisce) ---
+            elif client_groq:
                 full_msgs = [{"role": "system", "content": sys_msg}] + st.session_state.messages
-                comp = client.chat.completions.create(
+                comp = client_groq.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=full_msgs,
                     temperature=0.7
                 )
                 res = comp.choices[0].message.content
-                st.markdown(res)
-                st.session_state.messages.append({"role": "assistant", "content": res})
+            
+            st.markdown(res)
+            st.session_state.messages.append({"role": "assistant", "content": res})
 
-                if st.session_state.chat_id is None:
-                    cid = str(uuid.uuid4())
-                    title = generate_title(prompt, res)
-                    st.session_state.chats.insert(0, {"id": cid, "title": title, "messages": list(st.session_state.messages)})
-                    st.session_state.chat_id = cid
-                else:
-                    for c in st.session_state.chats:
-                        if c["id"] == st.session_state.chat_id:
-                            c["messages"] = list(st.session_state.messages)
-                save_chats()
-                st.rerun()
-            except Exception as e:
-                st.error(f"Errore: {e}")
+            if st.session_state.chat_id is None:
+                cid = str(uuid.uuid4())
+                title = generate_title(prompt, res)
+                st.session_state.chats.insert(0, {"id": cid, "title": title, "messages": list(st.session_state.messages)})
+                st.session_state.chat_id = cid
+            else:
+                for c in st.session_state.chats:
+                    if c["id"] == st.session_state.chat_id:
+                        c["messages"] = list(st.session_state.messages)
+            save_chats()
+            st.rerun()
+        except Exception as e:
+            st.error(f"Errore: {e}")
