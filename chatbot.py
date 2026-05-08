@@ -188,15 +188,14 @@ if "chat_id" not in st.session_state:
     st.session_state.chat_id = None
 
 # ================= API CONFIG =================
-# Configurazione Groq (vecchia, lasciata come backup)
 client_groq = None
 if "GROQ_API_KEY" in st.secrets:
     client_groq = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
-# Configurazione Gemini (NUOVA)
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    model_gemini = genai.GenerativeModel('gemini-1.5-flash')
+    # CORREZIONE 404: Aggiunto 'models/' al nome del modello
+    model_gemini = genai.GenerativeModel('models/gemini-1.5-flash')
 else:
     st.error("Manca GEMINI_API_KEY nei Secrets!")
 
@@ -206,11 +205,11 @@ def new_chat():
     st.session_state.chat_id = None
 
 def generate_title(user, bot):
-    # Usiamo Gemini per il titolo se disponibile, altrimenti Groq
     try:
         prompt_title = f"Crea un titolo di MAX 4 parole per questa conversazione. No emoji.\nU: {user}\nA: {bot}"
         if "GEMINI_API_KEY" in st.secrets:
-            res = model_gemini.generate_content(prompt_title)
+            # CORREZIONE FILTRI anche per il titolo
+            res = model_gemini.generate_content(prompt_title, safety_settings={'HATE':'BLOCK_NONE','HARASSMENT':'BLOCK_NONE','SEXUAL':'BLOCK_NONE','DANGEROUS':'BLOCK_NONE'})
             return res.text.strip().replace('"', '')
         elif client_groq:
             res = client_groq.chat.completions.create(
@@ -281,25 +280,30 @@ if prompt := st.chat_input("Scrivi al Loco..."):
 
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
     with st.chat_message("assistant"):
-        # SYSTEM PROMPT INTEGRATO CON IL DATABASE
         sys_msg = f"""Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso, verace e diretto.
         Usa queste informazioni per rispondere: {KNOWLEDGE_BASE}
         Se l'informazione non è nel testo, rispondi da ultras ma basandoti sulla tua fede biancoscudata."""
         
         try:
-            # --- LOGICA GEMINI (Primaria per via del limite token) ---
             if "GEMINI_API_KEY" in st.secrets:
-                # Prepariamo la cronologia per Gemini
                 history_text = ""
                 for msg in st.session_state.messages:
                     history_text += f"\n{msg['role']}: {msg['content']}"
                 
                 full_prompt = f"{sys_msg}\n\nCronologia conversazione:{history_text}\n\nassistant:"
                 
-                response = model_gemini.generate_content(full_prompt)
+                # CORREZIONE FILTRI: Aggiunto safety_settings per non bloccare il linguaggio ultras
+                response = model_gemini.generate_content(
+                    full_prompt,
+                    safety_settings={
+                        'HATE': 'BLOCK_NONE',
+                        'HARASSMENT': 'BLOCK_NONE',
+                        'SEXUAL': 'BLOCK_NONE',
+                        'DANGEROUS': 'BLOCK_NONE'
+                    }
+                )
                 res = response.text
                 
-            # --- LOGICA GROQ (Backup se Gemini fallisce) ---
             elif client_groq:
                 full_msgs = [{"role": "system", "content": sys_msg}] + st.session_state.messages
                 comp = client_groq.chat.completions.create(
