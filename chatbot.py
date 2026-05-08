@@ -156,7 +156,7 @@ html, body, [class*="css"] {{
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }}
 
-/* MEDIA QUERIES PER TELEFONI - CORRETTE CON DOPPIE GRAFFE */
+/* MEDIA QUERIES PER TELEFONI */
 @media (max-width: 768px) {{
     .home-title {{ font-size: 1.8rem !important; letter-spacing: 2px; }}
     .home-sub {{ font-size: 1rem !important; }}
@@ -194,14 +194,11 @@ if "GROQ_API_KEY" in st.secrets:
 
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
     # MODELLO GEMINI CORRETTO
-    model_gemini = genai.GenerativeModel(
-        model_name="gemini-1.5-flash"
-    )
-
+    model_gemini = genai.GenerativeModel(model_name="gemini-1.5-flash")
 else:
     st.error("Manca GEMINI_API_KEY nei Secrets!")
+
 # ================= UTILS =================
 def new_chat():
     st.session_state.messages = []
@@ -212,7 +209,15 @@ def generate_title(user, bot):
         prompt_title = f"Crea un titolo di MAX 4 parole per questa conversazione. No emoji.\nU: {user}\nA: {bot}"
         if "GEMINI_API_KEY" in st.secrets:
             # CORREZIONE FILTRI anche per il titolo
-            res = model_gemini.generate_content(prompt_title, safety_settings={'HATE':'BLOCK_NONE','HARASSMENT':'BLOCK_NONE','SEXUAL':'BLOCK_NONE','DANGEROUS':'BLOCK_NONE'})
+            res = model_gemini.generate_content(
+                prompt_title, 
+                safety_settings=[
+                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+                ]
+            )
             return res.text.strip().replace('"', '')
         elif client_groq:
             res = client_groq.chat.completions.create(
@@ -295,16 +300,16 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
                 
                 full_prompt = f"{sys_msg}\n\nCronologia conversazione:{history_text}\n\nassistant:"
                 
-                # CORREZIONE FILTRI: Aggiunto safety_settings per non bloccare il linguaggio ultras
-res = model_gemini.generate_content(
-    prompt_title,
-    safety_settings={
-        "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
-        "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE",
-        "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_NONE",
-        "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",
-    }
-)
+                # CHIAMATA GEMINI CON SAFETY SETTINGS
+                response = model_gemini.generate_content(
+                    full_prompt,
+                    safety_settings=[
+                        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+                    ]
+                )
                 res = response.text
                 
             elif client_groq:
