@@ -1,6 +1,6 @@
 import streamlit as st
 from groq import Groq
-import google.generativeai as genai  # <--- AGGIUNTO per Gemini
+import google.generativeai as genai
 import json, os, time, uuid
 import docx  # <--- AGGIUNTO per leggere il database
 
