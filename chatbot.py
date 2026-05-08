@@ -155,12 +155,12 @@ html, body, [class*="css"] {{
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }}
 
-/* MEDIA QUERIES PER TELEFONI */
-@media (max-width: 768px) {
-    .home-title { font-size: 1.8rem !important; letter-spacing: 2px; }
-    .home-sub { font-size: 1rem !important; }
-    .home-card { height: 180px; }
-}
+/* MEDIA QUERIES PER TELEFONI - CORRETTE CON DOPPIE GRAFFE */
+@media (max-width: 768px) {{
+    .home-title {{ font-size: 1.8rem !important; letter-spacing: 2px; }}
+    .home-sub {{ font-size: 1rem !important; }}
+    .home-card {{ height: 180px; }}
+}}
 
 </style>
 """, unsafe_allow_html=True)
