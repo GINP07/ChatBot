@@ -1,6 +1,7 @@
 import streamlit as st
 from groq import Groq
 import json, os, time, uuid
+import docx  # <--- AGGIUNTO per leggere il database
 
 # ================= CONFIG (CON LOGO BROWSER) =================
 st.set_page_config(
@@ -11,9 +12,27 @@ st.set_page_config(
 
 # --- LINK IMMAGINI ---
 BG_GENERALE = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg"
-IMMAGINE_HOME_CENTRALE = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg" # <--- CAMBIA QUESTO LINK PER L'IMMAGINE NELLA HOME
+IMMAGINE_HOME_CENTRALE = "https://i.ibb.co/6cymMzFL/curva-savoia.jpg" 
 LOGO_PICCOLO = "https://i.ibb.co/NgwLt8cT/logo-savoia.png"
 CHAT_FILE = "chat_history.json"
+DATABASE_FILE = "Database_Savoia.docx" # <--- IL NOME DEL TUO FILE
+
+# ================= FUNZIONE CARICAMENTO DATABASE =================
+def load_savoia_database(file_path):
+    if os.path.exists(file_path):
+        try:
+            doc = docx.Document(file_path)
+            full_text = []
+            for para in doc.paragraphs:
+                if para.text.strip():
+                    full_text.append(para.text)
+            return "\n".join(full_text)
+        except Exception as e:
+            return f"Errore caricamento database: {e}"
+    return "Database non trovato."
+
+# Carichiamo la conoscenza dal file .docx
+KNOWLEDGE_BASE = load_savoia_database(DATABASE_FILE)
 
 # ================= CSS PREMIUM =================
 st.markdown(f"""
@@ -85,15 +104,16 @@ html, body, [class*="css"] {{
     line-height: 1.5 !important;
 }}
 
-/* Home Card & Centratura Totale */
+/* Home Card & Centratura Totale (RESPONSIVE) */
 .home-container {{
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 65vh;
+    min-height: 65vh;
     text-align: center;
     width: 100%;
+    padding: 0 10px;
 }}
 
 .logo-home-mini {{
@@ -103,7 +123,8 @@ html, body, [class*="css"] {{
 }}
 
 .home-card {{
-    width: 420px; 
+    width: 90%;
+    max-width: 420px;
     height: 240px; 
     border-radius: 20px;
     background-image: url('{IMMAGINE_HOME_CENTRALE}'); 
@@ -125,7 +146,7 @@ html, body, [class*="css"] {{
 }}
 
 .home-sub {{ 
-    color: #A52A2A !important; /* Rosso meno acceso (Brownish Red / Amaranto) */
+    color: #A52A2A !important; 
     font-style: italic; 
     font-weight: 800;
     font-size: 1.25rem;
@@ -133,6 +154,13 @@ html, body, [class*="css"] {{
     width: 100%;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }}
+
+/* MEDIA QUERIES PER TELEFONI */
+@media (max-width: 768px) {
+    .home-title { font-size: 1.8rem !important; letter-spacing: 2px; }
+    .home-sub { font-size: 1rem !important; }
+    .home-card { height: 180px; }
+}
 
 </style>
 """, unsafe_allow_html=True)
@@ -242,7 +270,11 @@ if prompt := st.chat_input("Scrivi al Loco..."):
 if st.session_state.messages and st.session_state.messages[-1]["role"] == "user":
     if client:
         with st.chat_message("assistant"):
-            sys_msg = "Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso e diretto."
+            # SYSTEM PROMPT INTEGRATO CON IL DATABASE
+            sys_msg = f"""Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso, verace e diretto.
+            Usa queste informazioni per rispondere: {KNOWLEDGE_BASE}
+            Se l'informazione non è nel testo, rispondi da ultras ma basandoti sulla tua fede biancoscudata."""
+            
             try:
                 full_msgs = [{"role": "system", "content": sys_msg}] + st.session_state.messages
                 comp = client.chat.completions.create(
