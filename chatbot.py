@@ -194,11 +194,14 @@ if "GROQ_API_KEY" in st.secrets:
 
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    # CORREZIONE 404: Aggiunto 'models/' al nome del modello
-    model_gemini = genai.GenerativeModel('models/gemini-1.5-flash')
+
+    # MODELLO GEMINI CORRETTO
+    model_gemini = genai.GenerativeModel(
+        model_name="gemini-1.5-flash"
+    )
+
 else:
     st.error("Manca GEMINI_API_KEY nei Secrets!")
-
 # ================= UTILS =================
 def new_chat():
     st.session_state.messages = []
@@ -293,15 +296,15 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
                 full_prompt = f"{sys_msg}\n\nCronologia conversazione:{history_text}\n\nassistant:"
                 
                 # CORREZIONE FILTRI: Aggiunto safety_settings per non bloccare il linguaggio ultras
-                response = model_gemini.generate_content(
-                    full_prompt,
-                    safety_settings={
-                        'HATE': 'BLOCK_NONE',
-                        'HARASSMENT': 'BLOCK_NONE',
-                        'SEXUAL': 'BLOCK_NONE',
-                        'DANGEROUS': 'BLOCK_NONE'
-                    }
-                )
+res = model_gemini.generate_content(
+    prompt_title,
+    safety_settings={
+        "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
+        "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE",
+        "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_NONE",
+        "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",
+    }
+)
                 res = response.text
                 
             elif client_groq:
