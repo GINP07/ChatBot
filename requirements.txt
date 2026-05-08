@@ -2,3 +2,4 @@ streamlit
 groq
 streamlit-antd-components
 streamlit-extras
+python-docx
