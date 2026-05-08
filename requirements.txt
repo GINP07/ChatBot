@@ -3,4 +3,4 @@ groq
 streamlit-antd-components
 streamlit-extras
 python-docx
-google-generativeai>=0.8.0
+google-generativeai==0.7.2
