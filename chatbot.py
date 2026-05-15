@@ -287,7 +287,7 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
             # --- LOGICA DI RICERCA RAG ---
             info_pertinenti = ""
             if VECTOR_DB:
-                # Recuperiamo i 5 pezzi più importanti (k=5)
+                # Recuperiamo i 5 pezzi più importanti (k=10)
                 risultati = VECTOR_DB.similarity_search(str(prompt), k=5)
                 info_pertinenti = "\n\n".join([doc.page_content for doc in risultati])
             
