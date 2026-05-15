@@ -288,7 +288,7 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
             info_pertinenti = ""
             if VECTOR_DB:
                 # Recuperiamo i 5 pezzi più importanti (k=5)
-                risultati = VECTOR_DB.similarity_search(prompt, k=5)
+                risultati = VECTOR_DB.similarity_search(str(prompt), k=5)
                 info_pertinenti = "\n\n".join([doc.page_content for doc in risultati])
             
             # SYSTEM PROMPT (Breve per evitare errore 413)
