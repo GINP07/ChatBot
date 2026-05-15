@@ -292,10 +292,17 @@ if st.session_state.messages and st.session_state.messages[-1]["role"] == "user"
                 info_pertinenti = "\n\n".join([doc.page_content for doc in risultati])
             
             # SYSTEM PROMPT (Breve per evitare errore 413)
-            sys_msg = f"""Sei El Loco Muñoz, ultras del Savoia 1908. Orgoglioso, verace e diretto.
-            Usa queste informazioni dal database per rispondere se pertinenti: {info_pertinenti}
-            Se l'info non c'è, rispondi con la tua fede biancoscudata da torrese verace."""
+            sys_msg = f"""Sei El Loco Muñoz, il tuo vero nome è Daniel Muñoz Hernández e sei proprio l'attuale calciatore numero 10 del Savoia. Sei il beniamino dei tifosi Torresi.
+            IMPORTANTE: Nel rispondere, devi dare PRIORITÀ ASSOLUTA alle informazioni contenute qui sotto, che provengono dal nostro Database Ufficiale. 
             
+            DATABASE:
+            {context_text}
+            
+            REGOLE:
+            1. Se il database contiene date, nomi o stagioni, usali! Non inventare nulla.
+            2. Se nel database non trovi la risposta, di' chiaramente che 'su questo non ci sono carte scritte' ma rispondi da calciatore simbolo biancoscudato.
+            3. Parla verace, fiero e diretto come se fossi fuori al Giraud."""
+                        
             try:
                 # Invia il system prompt + la cronologia recente
                 full_msgs = [{"role": "system", "content": sys_msg}] + st.session_state.messages[-10:]
