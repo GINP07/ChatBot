@@ -2,3 +2,8 @@ streamlit
 google-generativeai
 python-docx
 groq
+langchain
+langchain-groq
+langchain-community
+faiss-cpu
+sentence-transformers
